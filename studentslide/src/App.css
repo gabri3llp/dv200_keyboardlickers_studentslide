@@ -182,3 +182,79 @@
     border-right-color: var(--border);
   }
 }
+
+/* signin/signup page */
+
+.auth-background {
+  min-height: 100vh;
+  background: radial-gradient(ellipse at left, #3b1f5e 0%, #111 50%, #3b1a1a 100%);
+}
+
+.auth-card {
+  background: #2a2a2a;
+  border-radius: 20px;
+  padding: 2rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.auth-title {
+  color: #f5deb3;
+  font-weight: bold;
+}
+
+.auth-label {
+  color: white;
+  font-weight: 600;
+}
+
+.auth-input {
+  background: #3a4a45;
+  border: 1.5px solid #4a7a6a;
+  border-radius: 12px;
+  color: white;
+}
+
+.auth-input::placeholder {
+  color: #aaa;
+}
+
+.auth-input:focus {
+  background: #3a4a45;
+  border-color: #4a7a6a;
+  color: white;
+  box-shadow: none;
+}
+
+.auth-btn {
+  background: #7c5cbf;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  padding: 0.75rem;
+}
+
+.auth-btn:hover {
+  background: #6a4aad;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  color: #aaa;
+  gap: 1rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #555;
+}
+
+.auth-link {
+  color: #4ecdc4;
+  cursor: pointer;
+  font-weight: 600;
+}
