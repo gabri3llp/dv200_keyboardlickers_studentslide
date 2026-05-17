@@ -18,6 +18,20 @@ router.post('/', async (req, res) => {
   }
 });
 
+// change a student's role (admin only)
+router.patch('/:id/role', async (req, res) => {
+  try {
+    const student = await Student.findByIdAndUpdate(
+      req.params.id,
+      { role: req.body.role },
+      { new: true }
+    );
+    if (!student) return res.status(404).json({ error: 'Student not found' });
+    res.json(student);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 module.exports = router;
 
-//define users 

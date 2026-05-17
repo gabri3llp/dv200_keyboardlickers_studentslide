@@ -12,6 +12,14 @@ app.use(express.json());
 const studentRoutes = require('./Routes/students');
 app.use('/api/students', studentRoutes);
 
+const listingRoutes = require('./Routes/listings');
+app.use('/api/listings', listingRoutes);
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Internal server error' });
+});
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('✅ Connected to MongoDB Atlas');
