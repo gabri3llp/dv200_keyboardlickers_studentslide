@@ -1,6 +1,7 @@
 import { Container, Row, Col, Form, Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import logo from '../assets/StudentSlide_Logo_Full.png'
 
 const SignUp = () => {
   const navigate = useNavigate()
@@ -12,22 +13,45 @@ const SignUp = () => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
+  const validate = () => {
+    if (!form.name || !form.surname || !form.email || !form.password || !form.confirmPassword) {
+      alert('Please fill in all fields')
+      return false
+    }
+    if (!form.email.includes('@') || !form.email.includes('.')) {
+      alert('Please enter a valid email address')
+      return false
+    }
+    if (form.password.length < 6) {
+      alert('Password must be at least 6 characters')
+      return false
+    }
+    if (form.password !== form.confirmPassword) {
+      alert('Passwords do not match')
+      return false
+    }
+    return true
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
-    console.log(form)
+    if (!validate()) return
+    console.log('Ready for API call:', form)
   }
 
   return (
     <div className="auth-background">
-      <Container className="d-flex flex-column align-items-center justify-content-center min-vh-100">
+      <Container fluid className="d-flex flex-column align-items-center justify-content-center min-vh-100">
+
+        {/* Logo */}
         <div className="mb-4 text-center">
-            /* Logo placeholder *\/
-          <h2 className="text-white fw-bold">STUDENT SLIDE</h2>
-          <span className="text-warning">— PASS IT ON —</span>
+          <img src={logo} alt="Student Slide Logo" className="auth-logo" />
         </div>
+
         <div className="auth-card w-100">
           <h5 className="text-center text-white mb-1">Welcome to</h5>
           <h2 className="text-center auth-title mb-4">Student Slide!</h2>
+
           <Form onSubmit={handleSubmit}>
             <Row>
               <Col xs={12} md={6}>
