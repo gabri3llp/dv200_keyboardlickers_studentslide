@@ -247,6 +247,20 @@
   padding: 0.6rem 1.5rem;
   border-radius: 8px;
   font-size: 14px;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-family: Arial, sans-serif;
+}
+h1,
+h2 {
+  font-family: var(--heading);
   font-weight: 500;
   cursor: pointer;
   border: 1px solid transparent;
@@ -633,3 +647,4 @@
     width: 100%;
   }
 }
+ 
