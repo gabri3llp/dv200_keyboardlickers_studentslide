@@ -183,19 +183,36 @@
   }
 }
 
+/* signin/signup page */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-family: Arial, sans-serif;
+}
 /* signin/signup page -Gedeon Kazadi*/
 
 .auth-background {
   min-height: 100vh;
+  width: 100%;
   background: radial-gradient(ellipse at left, #3b1f5e 0%, #111 50%, #3b1a1a 100%);
 }
 
 .auth-card {
-  background: #2a2a2a;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 20px;
   padding: 2rem;
   max-width: 500px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .auth-title {
@@ -209,33 +226,34 @@
 }
 
 .auth-input {
-  background: #3a4a45;
-  border: 1.5px solid #4a7a6a;
-  border-radius: 12px;
-  color: white;
+  background: #3a4a45 !important;
+  border: 1.5px solid #4a7a6a !important;
+  border-radius: 12px !important;
+  color: white !important;
 }
 
 .auth-input::placeholder {
-  color: #aaa;
+  color: #aaa !important;
 }
 
 .auth-input:focus {
-  background: #3a4a45;
-  border-color: #4a7a6a;
-  color: white;
-  box-shadow: none;
+  background: #3a4a45 !important;
+  border-color: #4a7a6a !important;
+  color: white !important;
+  box-shadow: none !important;
 }
 
 .auth-btn {
-  background: #7c5cbf;
-  border: none;
-  border-radius: 12px;
+  background: #7c5cbf !important;
+  border: none !important;
+  border-radius: 12px !important;
   font-weight: bold;
   padding: 0.75rem;
+  color: white !important;
 }
 
 .auth-btn:hover {
-  background: #6a4aad;
+  background: #6a4aad !important;
 }
 
 .auth-divider {
@@ -259,6 +277,10 @@
   font-weight: 600;
 }
 
+.auth-logo {
+  max-width: 350px;
+  width: 100%;
+}
 
 
 /* Toast/Success for adding an item to your cart -Nkanyiso Nkosi*/

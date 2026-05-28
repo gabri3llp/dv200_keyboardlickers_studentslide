@@ -1,6 +1,8 @@
 import { Container, Row, Col, Form, Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import logo from '../assets/StudentSlide_Logo_Full.png' 
+
 
 const SignIn = () => {
   const navigate = useNavigate()
@@ -10,21 +12,34 @@ const SignIn = () => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    console.log(form)
-    // API call goes here later
+ const handleSubmit = (e) => {
+  e.preventDefault()
+  if (!validate()) return
+  console.log('Ready for API call:', form)
+}
+
+const validate = () => {
+  // check neither field is empty
+  if (!form.email || !form.password) {
+    alert('Please fill in all fields')
+    return false
   }
+  // basic email format check
+  if (!form.email.includes('@')) {
+    alert('Please enter a valid email')
+    return false
+  }
+  return true
+}
 
   return (
-    <div className="auth-background">
-      <Container className="d-flex flex-column align-items-center justify-content-center min-vh-100">
-
-        {/* Logo placeholder */}
-        <div className="mb-4 text-center">
-          <h2 className="text-white fw-bold">STUDENT SLIDE</h2>
-          <span className="text-warning">— PASS IT ON —</span>
-        </div>
+   <div className="auth-background">
+  <Container fluid className="d-flex flex-column align-items-center justify-content-center min-vh-100">
+    
+    {/* Logo */}
+    <div className="mb-4 text-center">
+      <img src={logo} alt="Student Slide Logo" className="auth-logo" />
+    </div>
 
         {/* Card */}
         <div className="auth-card w-100">
