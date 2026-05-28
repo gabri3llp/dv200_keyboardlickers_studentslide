@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import SignIn from './Pages/signIn';
 import SignUp from './Pages/signUp';
-import Messages from './Pages/Messages';
+import Messages from './Pages/messages';
+import CreateListing from './Pages/createListing';
+import Marketplace from './Pages/marketplace';
 import './App.css';
 
 function App() {
@@ -12,6 +14,9 @@ function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/messages" element={<Messages />} />
+        <Route path="/createListing" element={<CreateListing />} />
+        <Route path="/listings" element={<CreateListing />} />
+        <Route path="/marketplace" element={<Marketplace />} />
       </Routes>
     </BrowserRouter>
   );
