@@ -33,5 +33,39 @@ router.patch('/:id/role', async (req, res) => {
   }
 });
 
+app.post("/register", async (req, res) => {
+
+    try {
+
+        const { email, password } = req.body;
+
+        // Generate Salt
+        const salt = await bcrypt.genSalt(10);
+
+        // Hash Password
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Create User
+        const newUser = new User({
+            email,
+            password: hashedPassword
+        });
+
+        await newUser.save();
+
+        res.json({
+            message: "User registered successfully"
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+
+});
+
 module.exports = router;
 
