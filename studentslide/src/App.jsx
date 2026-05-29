@@ -4,6 +4,8 @@ import SignUp from './Pages/signUp';
 import Messages from './Pages/messages';
 import CreateListing from './Pages/createListing';
 import Marketplace from './Pages/marketplace';
+import ProductDetails from './Pages/productDetails';
+import AboutUs from './Pages/aboutUS';
 import './App.css';
 
 function App() {
@@ -17,6 +19,8 @@ function App() {
         <Route path="/createListing" element={<CreateListing />} />
         <Route path="/listings" element={<CreateListing />} />
         <Route path="/marketplace" element={<Marketplace />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/aboutus" element={<AboutUs />} />
       </Routes>
     </BrowserRouter>
   );
