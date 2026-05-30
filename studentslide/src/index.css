@@ -109,3 +109,31 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+.rl-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/*  RESPONSIVENESS*/
+@media (max-width: 520px) {
+  .rl-card {
+    flex-wrap: wrap;
+  }
+
+  .rl-card__actions {
+    width: 100%;
+  }
+
+  .rl-remove-btn {
+    width: 100%;
+  }
+
+  .rl-modal__actions {
+    flex-direction: column-reverse;
+  }
+
+  .rl-btn {
+    width: 100%;
+  }
+}
