@@ -11,17 +11,19 @@ import {
   Spinner,
   Table,
 } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { apiRequest } from '../api/client';
+import {
+  createListing,
+  deleteListing as removeListing,
+  getListings,
+  updateListing,
+  updateListingState as saveListingState,
+} from '../api/listings';
+import logo from '../assets/StudentSlide_Logo_Full.png';
+import { listingCategories } from '../data/sampleListings';
 
-const API_URL = 'http://localhost:5000/api';
-
-const DEFAULT_CATEGORIES = [
-  'Textbooks',
-  'Electronics',
-  'Furniture',
-  'Clothing',
-  'Stationery',
-  'Other',
-];
+const DEFAULT_CATEGORIES = listingCategories;
 
 const emptyForm = {
   title: '',
@@ -31,17 +33,20 @@ const emptyForm = {
   image: '',
 };
 
-const CreateListing = () => {
+const CreateListing = ({ user, adminView = false }) => {
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const [form, setForm] = useState(emptyForm);
   const [editingListing, setEditingListing] = useState(null);
   const [listingToDelete, setListingToDelete] = useState(null);
   const [showFormModal, setShowFormModal] = useState(false);
+  const [imageInputMode, setImageInputMode] = useState('url');
+  const [imageFileName, setImageFileName] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const canReview = user?.role === 'admin' || user?.role === 'moderator';
 
   const pendingCount = useMemo(
     () => listings.filter((listing) => listing.listingState === 'pending').length,
@@ -58,14 +63,7 @@ const CreateListing = () => {
     setError('');
 
     try {
-      const response = await fetch(`${API_URL}/listings`);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Could not load listings');
-      }
-
-      setListings(data);
+      setListings(await getListings());
     } catch (err) {
       setError(err.message);
     } finally {
@@ -78,23 +76,15 @@ const CreateListing = () => {
 
     const loadInitialData = async () => {
       try {
-        const [listingResponse, categoryResponse] = await Promise.all([
-          fetch(`${API_URL}/listings`),
-          fetch(`${API_URL}/categories`),
-        ]);
         const [listingData, categoryData] = await Promise.all([
-          listingResponse.json(),
-          categoryResponse.json(),
+          getListings(),
+          apiRequest('/categories').catch(() => []),
         ]);
-
-        if (!listingResponse.ok) {
-          throw new Error(listingData.error || 'Could not load listings');
-        }
 
         if (isMounted) {
           setListings(listingData);
 
-          if (categoryResponse.ok && categoryData.length > 0) {
+          if (categoryData.length > 0) {
             setCategories(categoryData.map((category) => category.name));
           }
         }
@@ -119,6 +109,8 @@ const CreateListing = () => {
   const openCreateModal = () => {
     setEditingListing(null);
     setForm(emptyForm);
+    setImageInputMode('url');
+    setImageFileName('');
     setError('');
     setMessage('');
     setShowFormModal(true);
@@ -133,6 +125,8 @@ const CreateListing = () => {
       description: listing.description,
       image: listing.image,
     });
+    setImageInputMode(listing.image?.startsWith('data:image') ? 'upload' : 'url');
+    setImageFileName(listing.image?.startsWith('data:image') ? 'Uploaded image' : '');
     setError('');
     setMessage('');
     setShowFormModal(true);
@@ -151,6 +145,42 @@ const CreateListing = () => {
     }));
   };
 
+  const handleImageModeChange = (mode) => {
+    setImageInputMode(mode);
+    setImageFileName('');
+    setForm((current) => ({
+      ...current,
+      image: '',
+    }));
+  };
+
+  const handleImageFileChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please choose an image file.');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setError('Please choose an image smaller than 2MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((current) => ({
+        ...current,
+        image: reader.result,
+      }));
+      setImageFileName(file.name);
+      setError('');
+    };
+    reader.onerror = () => setError('Could not read that image file.');
+    reader.readAsDataURL(file);
+  };
+
   const handleSave = async (event) => {
     event.preventDefault();
     setSaving(true);
@@ -162,20 +192,15 @@ const CreateListing = () => {
       price: Number(form.price),
     };
 
-    const endpoint = editingListing
-      ? `${API_URL}/listings/${editingListing._id}`
-      : `${API_URL}/listings`;
-
     try {
-      const response = await fetch(endpoint, {
-        method: editingListing ? 'PATCH' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
+      if (!payload.image) {
+        throw new Error('Please add a product image.');
+      }
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Could not save listing');
+      if (editingListing) {
+        await updateListing(editingListing._id, payload);
+      } else {
+        await createListing(payload);
       }
 
       setShowFormModal(false);
@@ -188,25 +213,12 @@ const CreateListing = () => {
     }
   };
 
-  const updateListingState = async (listing, listingState) => {
+  const changeListingState = async (listing, listingState) => {
     setError('');
     setMessage('');
 
     try {
-      const response = await fetch(`${API_URL}/listings/${listing._id}/state`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user-role': 'admin',
-        },
-        body: JSON.stringify({ listingState }),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Could not update listing state');
-      }
-
+      await saveListingState(listing._id, listingState);
       setMessage(`Listing marked as ${listingState}.`);
       await loadListings();
     } catch (err) {
@@ -214,7 +226,7 @@ const CreateListing = () => {
     }
   };
 
-  const deleteListing = async () => {
+  const handleDeleteListing = async () => {
     if (!listingToDelete) return;
 
     setSaving(true);
@@ -222,15 +234,7 @@ const CreateListing = () => {
     setMessage('');
 
     try {
-      const response = await fetch(`${API_URL}/listings/${listingToDelete._id}`, {
-        method: 'DELETE',
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Could not delete listing');
-      }
-
+      await removeListing(listingToDelete._id);
       setListingToDelete(null);
       setMessage('Listing deleted successfully.');
       await loadListings();
@@ -243,13 +247,31 @@ const CreateListing = () => {
 
   return (
     <div className="listing-page">
+      <nav className="mp-nav admin-nav">
+        <Link to="/marketplace">
+          <img src={logo} alt="StudentSlide" className="mp-nav-logo" />
+        </Link>
+        <div className="mp-nav-links">
+          <Link to="/marketplace" className="mp-nav-link">MARKETPLACE</Link>
+          <Link to="/listings" className={`mp-nav-link ${!adminView ? 'active' : ''}`}>MY LISTINGS</Link>
+          {canReview && (
+            <Link to="/admin/listings" className={`mp-nav-link ${adminView ? 'active' : ''}`}>ADMIN</Link>
+          )}
+        </div>
+        <div className="mp-nav-right">
+          <span className="admin-role-pill">{user?.role || 'guest'}</span>
+        </div>
+      </nav>
+
       <Container className="py-5">
         <div className="listing-toolbar">
           <div>
-            <p className="listing-eyebrow">StudentSlide admin</p>
-            <h1 className="listing-title">Listing CRUD</h1>
+            <p className="listing-eyebrow">{adminView ? 'StudentSlide admin' : 'StudentSlide seller'}</p>
+            <h1 className="listing-title">{adminView ? 'Listing Review Queue' : 'My Listings'}</h1>
             <p className="listing-subtitle">
-              Add products to MongoDB, edit details, approve pending listings, and delete test data.
+              {adminView
+                ? 'Review pending products, approve live listings, and clean up test data.'
+                : 'Add products to MongoDB. New listings stay pending until an admin approves them.'}
             </p>
           </div>
 
@@ -328,14 +350,16 @@ const CreateListing = () => {
                     </td>
                     <td>
                       <div className="listing-actions">
-                        {listing.listingState !== 'live' ? (
-                          <Button size="sm" variant="outline-success" onClick={() => updateListingState(listing, 'live')}>
-                            Approve
-                          </Button>
-                        ) : (
-                          <Button size="sm" variant="outline-secondary" onClick={() => updateListingState(listing, 'pending')}>
-                            Unpublish
-                          </Button>
+                        {canReview && (
+                          listing.listingState !== 'live' ? (
+                            <Button size="sm" variant="outline-success" onClick={() => changeListingState(listing, 'live')}>
+                              Approve
+                            </Button>
+                          ) : (
+                            <Button size="sm" variant="outline-secondary" onClick={() => changeListingState(listing, 'pending')}>
+                              Unpublish
+                            </Button>
+                          )
                         )}
                         <Button size="sm" variant="outline-primary" onClick={() => openEditModal(listing)}>
                           Edit
@@ -384,12 +408,63 @@ const CreateListing = () => {
                   </Form.Select>
                 </Form.Group>
               </Col>
-              <Col md={6}>
+              <Col xs={12}>
                 <Form.Group>
-                  <Form.Label>Image URL</Form.Label>
-                  <Form.Control name="image" type="url" value={form.image} onChange={handleChange} required />
+                  <Form.Label>Product image</Form.Label>
+                  <div className="listing-image-source">
+                    <Form.Check
+                      inline
+                      type="radio"
+                      name="imageSource"
+                      id="image-source-url"
+                      label="Image URL"
+                      checked={imageInputMode === 'url'}
+                      onChange={() => handleImageModeChange('url')}
+                    />
+                    <Form.Check
+                      inline
+                      type="radio"
+                      name="imageSource"
+                      id="image-source-upload"
+                      label="Upload image"
+                      checked={imageInputMode === 'upload'}
+                      onChange={() => handleImageModeChange('upload')}
+                    />
+                  </div>
+
+                  {imageInputMode === 'url' ? (
+                    <Form.Control
+                      name="image"
+                      type="url"
+                      value={form.image}
+                      onChange={handleChange}
+                      placeholder="https://example.com/image.jpg"
+                      required
+                    />
+                  ) : (
+                    <Form.Control type="file" accept="image/*" onChange={handleImageFileChange} required={!form.image} />
+                  )}
                 </Form.Group>
               </Col>
+              {form.image && (
+                <Col xs={12}>
+                  <div className="listing-image-preview">
+                    <img src={form.image} alt="Listing preview" />
+                    <div>
+                      <strong>{imageFileName || 'Image preview'}</strong>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setForm((current) => ({ ...current, image: '' }));
+                          setImageFileName('');
+                        }}
+                      >
+                        Remove image
+                      </button>
+                    </div>
+                  </div>
+                </Col>
+              )}
               <Col xs={12}>
                 <Form.Group>
                   <Form.Label>Description</Form.Label>
@@ -427,7 +502,7 @@ const CreateListing = () => {
           <Button variant="outline-secondary" onClick={() => setListingToDelete(null)} disabled={saving}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={deleteListing} disabled={saving}>
+          <Button variant="danger" onClick={handleDeleteListing} disabled={saving}>
             {saving ? 'Deleting...' : 'Delete listing'}
           </Button>
         </Modal.Footer>

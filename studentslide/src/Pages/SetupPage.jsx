@@ -62,7 +62,7 @@ function AnimatedBackground() {
   return <canvas ref={canvasRef} style={{ position: 'fixed', inset: 0, zIndex: 0 }} />;
 }
 
-export default function SetupPage({ username, onConfirm, onBack }) {
+export default function SetupPage({ username, name, surname, onConfirm, onBack }) {
   const [sequence,      setSequence]      = useState([]);
   const [selectedColor, setSelectedColor] = useState('');
   const [error,         setError]         = useState('');
@@ -85,13 +85,13 @@ export default function SetupPage({ username, onConfirm, onBack }) {
     setLoading(true);
     setError('');
     try {
-      const result = await registerUser(username, selectedColor, sequence);
+      const result = await registerUser(username, selectedColor, sequence, { name, surname });
       if (!result.ok) {
         setError(result.msg || result.message || 'Registration failed. Please try again.');
       } else {
         onConfirm(sequence);
       }
-    } catch (err) {
+    } catch {
       setError('Could not connect to server. Is your backend running?');
     } finally {
       setLoading(false);

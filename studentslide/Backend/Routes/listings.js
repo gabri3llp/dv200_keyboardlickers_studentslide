@@ -1,12 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const Listing = require('../Model/listings');
+const jwt = require('jsonwebtoken');
 
 const editableListingFields = ['title', 'category', 'price', 'description', 'image'];
+const JWT_SECRET = process.env.JWT_SECRET || 'studentslide-dev-secret';
 
 const requireAdmin = (req, res, next) => {
-  if (req.header('x-user-role') !== 'admin') {
-    return res.status(403).json({ error: 'Admin access required' });
+  const roleHeader = req.header('x-user-role');
+  const token = (req.header('authorization') || '').replace('Bearer ', '');
+  let tokenRole = '';
+
+  try {
+    tokenRole = token ? jwt.verify(token, JWT_SECRET).role : '';
+  } catch {
+    // Invalid tokens simply fall back to the role header for the class demo.
+  }
+
+  if (!['admin', 'moderator'].includes(roleHeader) && !['admin', 'moderator'].includes(tokenRole)) {
+    return res.status(403).json({ error: 'Admin or moderator access required' });
   }
 
   next();

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { loginUser } from '../api/auth';
+import { saveSession } from '../api/client';
 import Wires from "../Components/tasks/Wires";
 import Swipe from "../Components/tasks/Swipe";
 import Reactor from "../Components/tasks/Reactor";
@@ -94,7 +95,7 @@ export default function TasksPage({ mode, username, color, sequence, onSuccess, 
       const result = await loginUser(username, mode === 'login' ? loginColor : color, pickedSequence);
       setLoading(false);
       if (result.ok) {
-        localStorage.setItem('crewmart_token', result.token);
+        saveSession(result);
         onSuccess(result.user);
       } else {
         setError(result.msg || result.message || 'Wrong sequence. Try again.');

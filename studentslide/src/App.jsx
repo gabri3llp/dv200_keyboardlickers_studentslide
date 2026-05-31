@@ -11,41 +11,46 @@ import AuthPage from './Pages/SignUpPage';
 import SetupPage from './Pages/SetupPage';
 import TasksPage from './Pages/TasksPage';
 import Dashboard from './Pages/Dashboard';
+import { clearSession, getStoredUser } from './api/client';
 import './App.css';
 
-// Wrapper to handle auth flow with navigation
 function AuthFlow() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(() => getStoredUser());
   const [authData, setAuthData] = useState({
     mode: 'register',
     username: '',
+    name: '',
+    surname: '',
     color: '',
-    sequence: []
+    sequence: [],
   });
 
-  // Called after SignUpPage form — goes to setup (register) or tasks (login)
-  function handleAuthNext({ mode, username, color }) {
-    setAuthData(prev => ({ ...prev, mode, username, color }));
-    if (mode === 'register') {
-      navigate('/setup');
-    } else {
-      navigate('/tasks');
-    }
+  const canManageListings = user?.role === 'admin' || user?.role === 'moderator';
+
+  function handleAuthNext({ mode, username, color, name, surname }) {
+    setAuthData((prev) => ({ ...prev, mode, username, color, name, surname }));
+    navigate(mode === 'register' ? '/setup' : '/tasks');
   }
 
-  // Called after SetupPage — goes to tasks
   function handleSetupDone(sequence) {
-    setAuthData(prev => ({ ...prev, sequence }));
+    setAuthData((prev) => ({ ...prev, sequence }));
     navigate('/tasks');
   }
 
-  // Called after TasksPage success — goes to dashboard
-  function handleAuthSuccess(user) {
-    navigate('/dashboard');
+  function handleAuthSuccess(loggedInUser) {
+    setUser(loggedInUser);
+    const manager = loggedInUser?.role === 'admin' || loggedInUser?.role === 'moderator';
+    navigate(manager ? '/admin/listings' : '/marketplace');
   }
 
-  // Called after TasksPage fail — back to auth
   function handleAuthFail() {
+    navigate('/auth');
+  }
+
+  function handleLogout() {
+    clearSession();
+    setUser(null);
     navigate('/auth');
   }
 
@@ -53,28 +58,44 @@ function AuthFlow() {
     <Routes>
       <Route path="/" element={<AuthPage onNext={handleAuthNext} />} />
       <Route path="/auth" element={<AuthPage onNext={handleAuthNext} />} />
-      <Route path="/setup" element={
-        <SetupPage
-          username={authData.username}
-          onConfirm={handleSetupDone}
-          onBack={() => navigate('/auth')}
-        />}
+      <Route
+        path="/setup"
+        element={
+          <SetupPage
+            username={authData.username}
+            name={authData.name}
+            surname={authData.surname}
+            onConfirm={handleSetupDone}
+            onBack={() => navigate('/auth')}
+          />
+        }
       />
-      <Route path="/tasks" element={
-        <TasksPage
-          mode={authData.mode}
-          username={authData.username}
-          color={authData.color}
-          sequence={authData.sequence}
-          onSuccess={handleAuthSuccess}
-          onFail={handleAuthFail}
-        />}
+      <Route
+        path="/tasks"
+        element={
+          <TasksPage
+            mode={authData.mode}
+            username={authData.username}
+            color={authData.color}
+            sequence={authData.sequence}
+            onSuccess={handleAuthSuccess}
+            onFail={handleAuthFail}
+          />
+        }
       />
-      <Route path="/dashboard" element={<Dashboard onLogout={() => navigate('/auth')} />} />
-      <Route path="/marketplace" element={<Marketplace />} />
-      <Route path="/product/:id" element={<ProductDetails />} />
-      <Route path="/createListing" element={<CreateListing />} />
-      <Route path="/listings" element={<CreateListing />} />
+      <Route path="/dashboard" element={<Dashboard user={user} onLogout={handleLogout} />} />
+      <Route path="/marketplace" element={<Marketplace user={user} onLogout={handleLogout} />} />
+      <Route path="/product/:id" element={<ProductDetails user={user} onLogout={handleLogout} />} />
+      <Route path="/createListing" element={<CreateListing user={user} />} />
+      <Route path="/listings" element={<CreateListing user={user} />} />
+      <Route
+        path="/admin/listings"
+        element={
+          canManageListings
+            ? <CreateListing user={user} adminView />
+            : <Marketplace user={user} onLogout={handleLogout} />
+        }
+      />
       <Route path="/messages" element={<Messages />} />
       <Route path="/aboutus" element={<AboutUs />} />
       <Route path="/signin" element={<SignIn />} />
