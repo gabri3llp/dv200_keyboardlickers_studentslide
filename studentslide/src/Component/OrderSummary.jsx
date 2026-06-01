@@ -1,6 +1,6 @@
 import { useCart } from '../../context/CartContext'
 import { useNavigate } from 'react-router-dom'
-import './OrderSummary.css'
+import '../App.css'
 
 export default function OrderSummary() {
   const { total } = useCart()

@@ -1,5 +1,5 @@
 import { useCart } from '../../context/CartContext'
-import './QuantityStepper.css'
+import '../App.css'
 
 export default function QuantityStepper({ item }) {
   const { dispatch } = useCart()
