@@ -78,7 +78,7 @@ export default function Cart({ user, onLogout }) {
                       <p className="cart-item__category">{item.category}</p>
                       <p className="cart-item__seller">Seller: {item.sellerName}</p>
                       <div className="cart-item__qty">
-                        <button
+                        {/* <button
                           className="cart-qty-btn"
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           disabled={item.quantity <= 1}
@@ -91,7 +91,7 @@ export default function Cart({ user, onLogout }) {
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         >
                           +
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                     <div className="cart-item__right">
@@ -126,9 +126,9 @@ export default function Cart({ user, onLogout }) {
               <button className="cart-summary__continue" onClick={() => navigate('/marketplace')}>
                 Continue Shopping
               </button>
-              <p className="cart-summary__note">
+              {/* <p className="cart-summary__note">
                 Checkout is currently a frontend cart demo. Backend order requests still need to be added.
-              </p>
+              </p> */}
             </aside>
           </div>
         </main>

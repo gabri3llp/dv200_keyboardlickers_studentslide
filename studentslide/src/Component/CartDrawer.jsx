@@ -59,7 +59,8 @@ export default function CartDrawer() {
                 Go to Marketplace
               </button>
             </div>
-          ) : (
+          ) 
+          : (
             <ul className="cd-list">
               {cartItems.map((item) => (
                 <li key={item.id} className="cd-item">
@@ -68,7 +69,7 @@ export default function CartDrawer() {
                     <p className="cd-item__title">{item.title}</p>
                     <p className="cd-item__unit">{formatPrice(item.price)} each</p>
                     <div className="cd-item__qty">
-                      <button
+                      {/* <button
                         className="cd-qty-btn"
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
                         disabled={item.quantity <= 1}
@@ -83,7 +84,7 @@ export default function CartDrawer() {
                         type="button"
                       >
                         +
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                   <div className="cd-item__right">
