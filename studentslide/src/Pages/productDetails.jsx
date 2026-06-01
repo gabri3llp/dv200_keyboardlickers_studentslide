@@ -3,11 +3,13 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Container, Spinner, Alert } from 'react-bootstrap';
 import { getListing } from '../api/listings';
 import logo from '../assets/StudentSlide_Logo_Full.png';
+import { useCart } from '../context/CartContext';
 import { getSampleListingById } from '../data/sampleListings';
 
 const ProductDetails = ({ user, onLogout }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCart, cartCount, setDrawerOpen } = useCart();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -80,6 +82,9 @@ const ProductDetails = ({ user, onLogout }) => {
             <span>Search</span>
           </div>
           <div className="mp-avatar" />
+          <button className="mp-cart-nav-btn" onClick={() => setDrawerOpen(true)} type="button">
+            CART ({cartCount})
+          </button>
           {user ? (
             <button className="mp-logout-btn" onClick={onLogout}>LOG OUT</button>
           ) : (
@@ -109,7 +114,9 @@ const ProductDetails = ({ user, onLogout }) => {
             <p className="pd-description">{listing.description}</p>
 
             <div className="pd-actions">
-              <button className="pd-cart-btn" type="button">ADD TO CART</button>
+              <button className="pd-cart-btn" onClick={() => addToCart(listing)} type="button">
+                ADD TO CART
+              </button>
               <button
                 className={`pd-like-btn ${liked ? 'liked' : ''}`}
                 onClick={() => setLiked(!liked)}

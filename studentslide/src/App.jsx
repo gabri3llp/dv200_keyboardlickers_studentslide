@@ -6,12 +6,15 @@ import Messages from './Pages/messages';
 import CreateListing from './Pages/createListing';
 import Marketplace from './Pages/marketplace';
 import ProductDetails from './Pages/productDetails';
+import Cart from './Pages/Cart';
 import AboutUs from './Pages/aboutUS';
 import AuthPage from './Pages/SignUpPage';
 import SetupPage from './Pages/SetupPage';
 import TasksPage from './Pages/TasksPage';
 import Dashboard from './Pages/Dashboard';
+import CartDrawer from './Component/CartDrawer';
 import { clearSession, getStoredUser } from './api/client';
+import { CartProvider } from './context/CartContext';
 import './App.css';
 
 function AuthFlow() {
@@ -86,6 +89,7 @@ function AuthFlow() {
       <Route path="/dashboard" element={<Dashboard user={user} onLogout={handleLogout} />} />
       <Route path="/marketplace" element={<Marketplace user={user} onLogout={handleLogout} />} />
       <Route path="/product/:id" element={<ProductDetails user={user} onLogout={handleLogout} />} />
+      <Route path="/cart" element={<Cart user={user} onLogout={handleLogout} />} />
       <Route path="/createListing" element={<CreateListing user={user} />} />
       <Route path="/listings" element={<CreateListing user={user} />} />
       <Route
@@ -107,7 +111,10 @@ function AuthFlow() {
 function App() {
   return (
     <BrowserRouter>
-      <AuthFlow />
+      <CartProvider>
+        <AuthFlow />
+        <CartDrawer />
+      </CartProvider>
     </BrowserRouter>
   );
 }

@@ -3,6 +3,7 @@ import { Container, Spinner } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { getListings } from '../api/listings';
 import logo from '../assets/StudentSlide_Logo_Full.png';
+import { useCart } from '../context/CartContext';
 import { listingCategories, sampleListings } from '../data/sampleListings';
 
 const CATEGORIES = ['ALL ITEMS', ...listingCategories.map((category) => category.toUpperCase())];
@@ -13,6 +14,7 @@ const Marketplace = ({ user, onLogout }) => {
   const [activeCategory, setActiveCategory] = useState('ALL ITEMS');
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+  const { addToCart, cartCount, setDrawerOpen } = useCart();
   const canManageListings = user?.role === 'admin' || user?.role === 'moderator';
 
   useEffect(() => {
@@ -43,6 +45,11 @@ const Marketplace = ({ user, onLogout }) => {
       .some((value) => value.toLowerCase().includes(query));
   });
 
+  const handleAddToCart = (event, listing) => {
+    event.stopPropagation();
+    addToCart(listing);
+  };
+
   return (
     <div className="mp-page">
       <nav className="mp-nav">
@@ -66,6 +73,9 @@ const Marketplace = ({ user, onLogout }) => {
             <span>Search</span>
           </div>
           <div className="mp-avatar" />
+          <button className="mp-cart-nav-btn" onClick={() => setDrawerOpen(true)} type="button">
+            CART ({cartCount})
+          </button>
           {user ? (
             <button className="mp-logout-btn" onClick={onLogout}>LOG OUT</button>
           ) : (
@@ -116,7 +126,13 @@ const Marketplace = ({ user, onLogout }) => {
                     <p className="mp-card-seller">Listed by {listing.sellerName || 'Student seller'}</p>
                     <p className="mp-card-desc">{listing.description}</p>
                     <p className="mp-card-price">R {Number(listing.price).toFixed(2)}</p>
-                    <button className="mp-cart-btn" type="button">ADD TO CART</button>
+                    <button
+                      className="mp-cart-btn"
+                      onClick={(event) => handleAddToCart(event, listing)}
+                      type="button"
+                    >
+                      ADD TO CART
+                    </button>
                     <span className="mp-star">Save</span>
                   </div>
                 </article>
