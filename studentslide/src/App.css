@@ -763,7 +763,7 @@
 }
 
 
-/* ─── PRODUCT DETAILS PAGE ───────────────────────────────── */
+/*  PRODUCT DETAILS PAGE  */
 .pd-page {
   min-height: 100vh;
   background: radial-gradient(ellipse at left, #3b1f5e 0%, #111 50%, #3b1a1a 100%);
@@ -919,7 +919,7 @@
 }
 
 
-/* ─── NAVBAR ─────────────────────────────────────────────── */
+/*  NAVBAR ── */
 .mp-nav {
   display: flex;
   align-items: center;
@@ -996,7 +996,7 @@
   cursor: pointer;
 }
 
-/* ─── MARKETPLACE PAGE ───────────────────────────────────── */
+/*  MARKETPLACE PAGE ─ */
 .mp-page {
   min-height: 100vh;
   background: radial-gradient(ellipse at left, #3b1f5e 0%, #111 50%, #3b1a1a 100%);
@@ -1190,7 +1190,7 @@
   cursor: pointer;
 }
  
-/* ─── PRODUCT DETAILS PAGE ───────────────────────────────── */
+/*  PRODUCT DETAILS PAGE  */
 .pd-page {
   min-height: 100vh;
   background: radial-gradient(ellipse at left, #3b1f5e 0%, #111 50%, #3b1a1a 100%);
@@ -1351,7 +1351,7 @@
   font-size: 0.85rem;
 }
  
-/* ─── COMMENTS ───────────────────────────────────────────── */
+/*  COMMENTS  */
 .pd-comments-section {
   border-top: 1px solid rgba(255,255,255,0.1);
   padding-top: 2rem;
