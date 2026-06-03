@@ -12,7 +12,6 @@ export default function CartDrawer() {
     drawerOpen,
     setDrawerOpen,
     removeFromCart,
-    updateQuantity,
     clearCart,
   } = useCart();
 

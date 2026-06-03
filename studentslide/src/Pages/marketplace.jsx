@@ -3,6 +3,7 @@ import { Container, Spinner } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { getListings } from '../api/listings';
 import logo from '../assets/StudentSlide_Logo_Full.png';
+import Footer from '../Component/footer';
 import { useCart } from '../context/CartContext';
 import { listingCategories, sampleListings } from '../data/sampleListings';
 
@@ -144,6 +145,7 @@ const Marketplace = ({ user, onLogout }) => {
           </>
         )}
       </Container>
+      <Footer />
     </div>
   );
 };

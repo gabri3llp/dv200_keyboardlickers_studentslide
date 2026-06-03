@@ -11,7 +11,6 @@ export default function Cart({ user, onLogout }) {
     cartTotal,
     cartCount,
     removeFromCart,
-    updateQuantity,
     clearCart,
   } = useCart();
 

@@ -1,9 +1,10 @@
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { BrowserRouter, Navigate, Routes, Route, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import SignIn from './Pages/signIn';
 import SignUp from './Pages/signUp';
 import Messages from './Pages/messages';
 import CreateListing from './Pages/createListing';
+import AdminListings from './Pages/AdminListings';
 import Marketplace from './Pages/marketplace';
 import ProductDetails from './Pages/productDetails';
 import Cart from './Pages/Cart';
@@ -14,6 +15,7 @@ import TasksPage from './Pages/TasksPage';
 import Dashboard from './Pages/Dashboard';
 import CartDrawer from './Component/CartDrawer';
 import { clearSession, getStoredUser } from './api/client';
+import { getMe } from './api/auth';
 import { CartProvider } from './context/CartContext';
 import './App.css';
 
@@ -29,7 +31,19 @@ function AuthFlow() {
     sequence: [],
   });
 
-  const canManageListings = user?.role === 'admin' || user?.role === 'moderator';
+  useEffect(() => {
+    let isMounted = true;
+
+    getMe().then((result) => {
+      if (isMounted && result.ok && result.user) {
+        setUser(result.user);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   function handleAuthNext({ mode, username, color, name, surname }) {
     setAuthData((prev) => ({ ...prev, mode, username, color, name, surname }));
@@ -92,16 +106,13 @@ function AuthFlow() {
       <Route path="/cart" element={<Cart user={user} onLogout={handleLogout} />} />
       <Route path="/createListing" element={<CreateListing user={user} />} />
       <Route path="/listings" element={<CreateListing user={user} />} />
+      <Route path="/admin" element={<Navigate to="/admin/listings" replace />} />
       <Route
         path="/admin/listings"
-        element={
-          canManageListings
-            ? <CreateListing user={user} adminView />
-            : <Marketplace user={user} onLogout={handleLogout} />
-        }
+        element={<AdminListings user={user} onLogout={handleLogout} />}
       />
       <Route path="/messages" element={<Messages />} />
-      <Route path="/aboutus" element={<AboutUs />} />
+      <Route path="/aboutus" element={<AboutUs user={user} onLogout={handleLogout} />} />
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
     </Routes>

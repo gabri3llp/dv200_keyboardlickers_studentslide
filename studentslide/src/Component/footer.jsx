@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import "./Footer.css";
 
 const Footer = () => {
   const year = new Date().getFullYear();
@@ -46,7 +45,7 @@ const Footer = () => {
             <li><Link to="/marketplace" className="footer__link">Marketplace</Link></li>
             <li><Link to="/createListing" className="footer__link">Create a listing</Link></li>
             <li><Link to="/messages" className="footer__link">Messages</Link></li>
-            <li><Link to="/aboutUS" className="footer__link">About us</Link></li>
+            <li><Link to="/aboutus" className="footer__link">About us</Link></li>
           </ul>
         </div>
 
@@ -54,8 +53,8 @@ const Footer = () => {
         <div className="footer__col">
           <h4 className="footer__col-heading">Account</h4>
           <ul className="footer__col-links">
-            <li><Link to="/signIn" className="footer__link">Sign in</Link></li>
-            <li><Link to="/signUp" className="footer__link">Sign up</Link></li>
+            <li><Link to="/signin" className="footer__link">Sign in</Link></li>
+            <li><Link to="/signup" className="footer__link">Sign up</Link></li>
             <li><Link to="/profile" className="footer__link">My profile</Link></li>
             <li><Link to="/listings" className="footer__link">My listings</Link></li>
           </ul>
@@ -82,7 +81,7 @@ const Footer = () => {
 
       {/* Bottom bar */}
       <div className="footer__bottom">
-        <p className="footer__copy">© {year} StudentSlide. All rights reserved.</p>
+        <p className="footer__copy">(c) {year} StudentSlide. All rights reserved.</p>
         <div className="footer__legal">
           <Link to="/privacy" className="footer__legal-link">Privacy policy</Link>
           <Link to="/terms" className="footer__legal-link">Terms of use</Link>
