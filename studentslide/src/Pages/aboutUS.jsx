@@ -10,7 +10,7 @@ const teamMembers = [
   {
     name: "Gabriel",
     role: "Developer",
-    about: "Your about me",
+    about: "Hey, I'm Gabriel. I'm passionate about design, music, and MMA. Whether I'm creating digital experiences, discovering new music, or training and following combat sports, I'm always drawn to things that blend creativity, skill, and dedication. I love building projects that look great, feel intuitive, and leave a lasting impression.",
     initials: "G",
     image: meImg,
     accentColor: "#a78bfa",
@@ -21,7 +21,7 @@ const teamMembers = [
   {
     name: "Larissa",
     role: "Developer",
-    about: "Your about me",
+    about: "Hi there! I'm Larissa, a co-creator of this website and someone who loves turning ideas into reality. This project began as a shared vision to create something engaging, informative, and valuable for our audience. Through creativity, collaboration, and plenty of problem-solving, I helped shape the site into what it is today. When I'm not working on projects like this, you can usually find me doing cheerleading.",
     initials: "L",
     image: larImg,
     accentColor: "#ec4899",
@@ -32,7 +32,7 @@ const teamMembers = [
   {
     name: "Gideon",
     role: "Developer",
-    about: "Your about me",
+    about: "Your about meGedeon Kazadi is a developer, designer, and aspiring cloud engineer passionate about building practical digital solutions. With experience in front-end development, UI/UX design, embedded systems, and growing backend skills, he enjoys creating systems that support meaningful user experiences. On the Student Slide project, he contributed to full-stack integration, listing CRUD functionality, role-based admin access, database-connected marketplace features, and merge planning.",
     initials: "G",
     image: gedionImg,
     accentColor: "#34d399",
@@ -43,7 +43,7 @@ const teamMembers = [
   {
     name: "Nkanyiso",
     role: "Developer",
-    about: "Your about me",
+    about: "Hi, I'm Nkanyiso Nkosi — an Interactive Development student and co-creator of StudentSlide. I've always been drawn to the intersection of technology and everyday life, and this project gave me the opportunity to build something that sits right at that crossroads. StudentSlide is more than just a student marketplace — it's a platform designed to make life a little easier and a little more affordable for students who are navigating the very real financial pressures that come with studying.",
     initials: "N",
     image: nkaniImg,
     accentColor: "#fbbf24",
