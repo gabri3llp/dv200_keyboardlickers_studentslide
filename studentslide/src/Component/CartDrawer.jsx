@@ -68,22 +68,7 @@ export default function CartDrawer() {
                     <p className="cd-item__title">{item.title}</p>
                     <p className="cd-item__unit">{formatPrice(item.price)} each</p>
                     <div className="cd-item__qty">
-                      {/* <button
-                        className="cd-qty-btn"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        disabled={item.quantity <= 1}
-                        type="button"
-                      >
-                        -
-                      </button>
-                      <span className="cd-qty-value">{item.quantity}</span>
-                      <button
-                        className="cd-qty-btn"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        type="button"
-                      >
-                        +
-                      </button> */}
+
                     </div>
                   </div>
                   <div className="cd-item__right">
