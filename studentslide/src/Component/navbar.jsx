@@ -12,7 +12,7 @@ const Navbar = ({ isLoggedIn = false, user = null, onLogout }) => {
   const navLinks = [
     { label: "Marketplace", path: "/marketplace" },
     { label: "Messages", path: "/messages" },
-    { label: "About Us", path: "/aboutUS" },
+    { label: "About Us", path: "/aboutus" },
   ];
 
   return (
@@ -59,8 +59,8 @@ const Navbar = ({ isLoggedIn = false, user = null, onLogout }) => {
             </>
           ) : (
             <>
-              <Link to="/signIn" className="navbar__btn navbar__btn--ghost">Sign In</Link>
-              <Link to="/signUp" className="navbar__btn navbar__btn--primary">Sign Up</Link>
+              <Link to="/signin" className="navbar__btn navbar__btn--ghost">Sign In</Link>
+              <Link to="/signup" className="navbar__btn navbar__btn--primary">Sign Up</Link>
             </>
           )}
         </div>
@@ -102,8 +102,8 @@ const Navbar = ({ isLoggedIn = false, user = null, onLogout }) => {
             </>
           ) : (
             <>
-              <Link to="/signIn" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>Sign In</Link>
-              <Link to="/signUp" className="navbar__mobile-link navbar__mobile-link--highlight" onClick={() => setMenuOpen(false)}>Sign Up</Link>
+              <Link to="/signin" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>Sign In</Link>
+              <Link to="/signup" className="navbar__mobile-link navbar__mobile-link--highlight" onClick={() => setMenuOpen(false)}>Sign Up</Link>
             </>
           )}
         </div>

@@ -1,3 +1,33 @@
+:root {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --social-bg: rgba(244, 243, 236, 0.5);
+  --shadow:
+    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
 
 /* ===== CREATE LISTING ===== */
 .cl-wrapper {
@@ -23,8 +53,17 @@
   font-size: 14px;
   color: #6b7280;
   margin: 0;
+  min-width: 320px;
+  background: #0a0a0f;
 }
 
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  text-align: initial;
+  border-inline: 0;
+  min-height: 100svh;
 /* ===== IMAGE UPLOAD ===== */
 .cl-image-upload {
   margin-bottom: 1.5rem;
@@ -274,6 +313,13 @@ h2 {
   border-color: #2563eb;
 }
 
+h1 {
+  font-size: 56px;
+  letter-spacing: 0;
+  margin: 32px 0;
+  @media (max-width: 1024px) {
+    font-size: 36px;
+    margin: 20px 0;
 .cl-btn--primary:hover:not(:disabled) {
   background: #1d4ed8;
 }
@@ -369,6 +415,12 @@ h2 {
 
 .rl-header__title {
   font-size: 24px;
+  line-height: 118%;
+  letter-spacing: 0;
+  margin: 0 0 8px;
+  @media (max-width: 1024px) {
+    font-size: 20px;
+  }
   font-weight: 700;
   color: #111111;
   margin: 0 0 0.2rem;
@@ -676,4 +728,3 @@ h2 {
   }
 }
  
-}

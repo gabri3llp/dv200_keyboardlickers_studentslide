@@ -53,10 +53,10 @@ const teamMembers = [
   },
 ];
 
-export default function AboutUs() {
+export default function AboutUs({ user, onLogout }) {
   return (
     <div className="aboutPage">
-      <Navbar />
+      <Navbar isLoggedIn={Boolean(user)} user={user} onLogout={onLogout} />
 
       {/* Hero */}
       <section className="aboutHero">

@@ -1,69 +1,153 @@
-import { useState } from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import ProductCard from "../components/ProductCard";
+import { useEffect, useState } from 'react';
+import { Container, Spinner } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
+import { getListings } from '../api/listings';
+import logo from '../assets/StudentSlide_Logo_Full.png';
+import Footer from '../Component/footer';
+import { useCart } from '../context/CartContext';
+import { listingCategories, sampleListings } from '../data/sampleListings';
 
-const mockProducts = [
-  { id: 1, title: "CARD 1", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", image: "https://via.placeholder.com/200", category: "electronics" },
-  { id: 2, title: "CARD 1", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", image: "https://via.placeholder.com/200", category: "apparel" },
-  { id: 3, title: "CARD 1", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", image: "https://via.placeholder.com/200", category: "electronics" },
-  { id: 4, title: "CARD 1", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", image: "https://via.placeholder.com/200", category: "equipment" },
-  { id: 5, title: "CARD 1", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", image: "https://via.placeholder.com/200", category: "dorm life" },
-  { id: 6, title: "CARD 1", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", image: "https://via.placeholder.com/200", category: "clothing" },
-  { id: 7, title: "CARD 1", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", image: "https://via.placeholder.com/200", category: "electronics" },
-  { id: 8, title: "CARD 1", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", image: "https://via.placeholder.com/200", category: "apparel" },
-  { id: 9, title: "CARD 1", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", image: "https://via.placeholder.com/200", category: "equipment" },
-  { id: 10, title: "CARD 1", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", image: "https://via.placeholder.com/200", category: "clothing" },
-];
+const CATEGORIES = ['ALL ITEMS', ...listingCategories.map((category) => category.toUpperCase())];
 
-const filters = ["ALL ITEMS", "ELECTRONICS", "APPAREL", "EQUIPMENT", "DORM LIFE", "CLOTHING"];
+const Marketplace = ({ user, onLogout }) => {
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState('ALL ITEMS');
+  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
+  const { addToCart, cartCount, setDrawerOpen } = useCart();
+  const canManageListings = user?.role === 'admin' || user?.role === 'moderator';
 
-export default function Marketplace() {
-  const [activeFilter, setActiveFilter] = useState("ALL ITEMS");
+  useEffect(() => {
+    const loadLiveListings = async () => {
+      try {
+        const liveListings = await getListings('live');
+        setListings(liveListings.length > 0 ? liveListings : sampleListings);
+      } catch {
+        setListings(sampleListings);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const filteredProducts = mockProducts.filter(product =>
-    activeFilter === "ALL ITEMS" || product.category === activeFilter.toLowerCase()
-  );
+    loadLiveListings();
+  }, []);
+
+  const categoryFiltered = activeCategory === 'ALL ITEMS'
+    ? listings
+    : listings.filter((listing) => listing.category?.toUpperCase() === activeCategory);
+
+  const visibleListings = categoryFiltered.filter((listing) => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return true;
+
+    return [listing.title, listing.category, listing.description]
+      .filter(Boolean)
+      .some((value) => value.toLowerCase().includes(query));
+  });
+
+  const handleAddToCart = (event, listing) => {
+    event.stopPropagation();
+    addToCart(listing);
+  };
 
   return (
-    <div style={{ background: "#111", minHeight: "100vh", color: "white", fontFamily: "sans-serif" }}>
-      <Navbar />
+    <div className="mp-page">
+      <nav className="mp-nav">
+        <Link to="/marketplace">
+          <img src={logo} alt="StudentSlide" className="mp-nav-logo" />
+        </Link>
+        <div className="mp-nav-links">
+          <Link to="/marketplace" className="mp-nav-link active">MARKETPLACE</Link>
+          <Link to="/listings" className="mp-nav-link">SELL</Link>
+          {canManageListings && <Link to="/admin/listings" className="mp-nav-link">ADMIN</Link>}
+          <Link to="/messages" className="mp-nav-link">MESSAGES</Link>
+          <Link to="/aboutus" className="mp-nav-link">ABOUT US</Link>
+        </div>
+        <div className="mp-nav-right">
+          <div className="mp-search-bar">
+            <input
+              placeholder="Search listings..."
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+            />
+            <span>Search</span>
+          </div>
+          <div className="mp-avatar" />
+          <button className="mp-cart-nav-btn" onClick={() => setDrawerOpen(true)} type="button">
+            CART ({cartCount})
+          </button>
+          {user ? (
+            <button className="mp-logout-btn" onClick={onLogout}>LOG OUT</button>
+          ) : (
+            <Link to="/auth" className="mp-nav-link">SIGN IN</Link>
+          )}
+        </div>
+      </nav>
 
-      <div style={{ padding: "20px" }}>
-
-        {/* Filter buttons */}
-        <div style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap" }}>
-          {filters.map(f => (
-            <button key={f} onClick={() => setActiveFilter(f)} style={{
-              padding: "6px 16px",
-              borderRadius: "20px",
-              border: "none",
-              cursor: "pointer",
-              fontWeight: "bold",
-              fontSize: "12px",
-              background: activeFilter === f ? "#a78bfa" : "#222",
-              color: activeFilter === f ? "white" : "#aaa",
-            }}>
-              {f}
+      <Container fluid className="mp-container">
+        <div className="mp-filters">
+          {CATEGORIES.map((category) => (
+            <button
+              key={category}
+              className={`mp-filter-btn ${activeCategory === category ? 'active' : ''}`}
+              onClick={() => setActiveCategory(category)}
+            >
+              {category}
             </button>
           ))}
         </div>
 
-        {/* Product Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "16px" }}>
-          {filteredProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-
-        {/* Showing count */}
-        <p style={{ textAlign: "center", color: "#888", marginTop: "30px", fontSize: "14px" }}>
-          showing {filteredProducts.length} out of 500 listed products
-        </p>
-
-      </div>
-
+        {loading ? (
+          <div className="mp-loading">
+            <Spinner animation="border" />
+            <span>Loading marketplace...</span>
+          </div>
+        ) : visibleListings.length === 0 ? (
+          <div className="mp-empty">
+            <h2>No listings yet</h2>
+            <p>Approve a listing or add your own product.</p>
+            <Link to="/listings" className="mp-add-btn">Add Product</Link>
+          </div>
+        ) : (
+          <>
+            <div className="mp-grid">
+              {visibleListings.map((listing) => (
+                <article
+                  className="mp-card"
+                  key={listing._id}
+                  onClick={() => navigate(`/product/${listing._id}`)}
+                >
+                  <div className="mp-card-img-wrap">
+                    <img src={listing.image} alt={listing.title} className="mp-card-img" />
+                  </div>
+                  <div className="mp-card-body">
+                    <span className="mp-card-category">{listing.category}</span>
+                    <h2 className="mp-card-title">{listing.title}</h2>
+                    <p className="mp-card-seller">Listed by {listing.sellerName || 'Student seller'}</p>
+                    <p className="mp-card-desc">{listing.description}</p>
+                    <p className="mp-card-price">R {Number(listing.price).toFixed(2)}</p>
+                    <button
+                      className="mp-cart-btn"
+                      onClick={(event) => handleAddToCart(event, listing)}
+                      type="button"
+                    >
+                      ADD TO CART
+                    </button>
+                    <span className="mp-star">Trade</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <p className="mp-count">
+              showing {visibleListings.length} out of {listings.length} listed products
+            </p>
+          </>
+        )}
+      </Container>
       <Footer />
     </div>
   );
-}
+};
+
+export default Marketplace;
