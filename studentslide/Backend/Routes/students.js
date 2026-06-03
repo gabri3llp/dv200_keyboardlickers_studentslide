@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Student = require('../Model/students');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 // GET all students
 router.get('/', async (req, res) => {
@@ -8,17 +10,55 @@ router.get('/', async (req, res) => {
   res.json(students);
 });
 
-// POST create a student
-router.post('/', async (req, res) => {
+// REGISTER a new student
+router.post('/register', async (req, res) => {
   try {
-    const student = await Student.create(req.body);
-    res.status(201).json(student);
+    const { name, surname, email, password, studentNum } = req.body;
+
+    const existing = await Student.findOne({ email });
+    if (existing) return res.status(400).json({ error: 'Email already registered' });
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const student = await Student.create({
+      name,
+      surname,
+      email,
+      password: hashedPassword,
+      studentNum,
+    });
+
+    res.status(201).json({ message: 'Student registered successfully', student });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// change a student's role (admin only)
+// LOGIN
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const student = await Student.findOne({ email });
+    if (!student) return res.status(404).json({ error: 'Student not found' });
+
+    const isMatch = await bcrypt.compare(password, student.password);
+    if (!isMatch) return res.status(401).json({ error: 'Invalid password' });
+
+    const token = jwt.sign(
+      { id: student._id, role: student.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
+    );
+
+    res.json({ message: 'Login successful', token, role: student.role });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// CHANGE role (admin only)
 router.patch('/:id/role', async (req, res) => {
   try {
     const student = await Student.findByIdAndUpdate(
@@ -33,39 +73,4 @@ router.patch('/:id/role', async (req, res) => {
   }
 });
 
-app.post("/register", async (req, res) => {
-
-    try {
-
-        const { email, password } = req.body;
-
-        // Generate Salt
-        const salt = await bcrypt.genSalt(10);
-
-        // Hash Password
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        // Create User
-        const newUser = new User({
-            email,
-            password: hashedPassword
-        });
-
-        await newUser.save();
-
-        res.json({
-            message: "User registered successfully"
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-            message: error.message
-        });
-
-    }
-
-});
-
 module.exports = router;
-
