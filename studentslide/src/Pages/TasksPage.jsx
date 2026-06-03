@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { loginUser } from '../api/auth';
 import { saveSession } from '../api/client';
-import Wires from "../Components/tasks/Wires";
-import Swipe from "../Components/tasks/Swipe";
-import Reactor from "../Components/tasks/Reactor";
-import Upload from "../Components/tasks/Upload";
-import Asteroids from "../Components/tasks/Asteriods";
+import Wires from "../Component/tasks/Wires";
+import Swipe from "../Component/tasks/Swipe";
+import Reactor from "../Component/tasks/Reactor";
+import Upload from "../Component/tasks/Upload";
+import Asteroids from "../Component/tasks/Asteriods";
 
 const TASK_MAP = { wires: Wires, swipe: Swipe, reactor: Reactor, upload: Upload, asteroids: Asteroids };
 

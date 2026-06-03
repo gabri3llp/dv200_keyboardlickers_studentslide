@@ -5,7 +5,7 @@ import meImg from '../assets/Me.jpeg';
 import larImg from '../assets/lar.jpeg';
 import gedionImg from '../assets/Gedion.jpeg';
 import nkaniImg from '../assets/Nkani.jpeg';
-import "./aboutUS.css";
+import "../App.css";
 
 const teamMembers = [
   {
