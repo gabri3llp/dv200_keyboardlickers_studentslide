@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import "../App.css";
-
 
 const Navbar = ({ isLoggedIn = false, user = null, onLogout }) => {
   const [menuOpen, setMenuOpen] = useState(false);

@@ -122,13 +122,10 @@ function AuthFlow() {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<SignIn />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/messages" element={<Messages />} />
-        <Route path="/aboutus" element={<AboutUs />} />
-      </Routes>
+      <CartProvider>
+        <AuthFlow />
+        <CartDrawer />
+      </CartProvider>
     </BrowserRouter>
   );
 }
