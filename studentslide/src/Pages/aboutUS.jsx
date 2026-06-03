@@ -1,17 +1,16 @@
-import { Link } from "react-router-dom";
 import Navbar from "../Component/navbar";
 import Footer from "../Component/footer";
 import meImg from '../assets/Me.jpeg';
 import larImg from '../assets/lar.jpeg';
 import gedionImg from '../assets/Gedion.jpeg';
 import nkaniImg from '../assets/Nkani.jpeg';
-import "./aboutUS.css";
+import "../App.css";
 
 const teamMembers = [
   {
     name: "Gabriel",
     role: "Developer",
-    about: "Backend and database contributor supporting the core StudentSlide data flow.",
+    about: "Hey, I'm Gabriel. I'm passionate about design, music, and MMA. Whether I'm creating digital experiences, discovering new music, or training and following combat sports, I'm always drawn to things that blend creativity, skill, and dedication. I love building projects that look great, feel intuitive, and leave a lasting impression.",
     initials: "G",
     image: meImg,
     accentColor: "#a78bfa",
@@ -22,7 +21,7 @@ const teamMembers = [
   {
     name: "Larissa",
     role: "Developer",
-    about: "Authentication and user-flow contributor focused on the creative login experience.",
+    about: "Hi there! I'm Larissa, a co-creator of this website and someone who loves turning ideas into reality. This project began as a shared vision to create something engaging, informative, and valuable for our audience. Through creativity, collaboration, and plenty of problem-solving, I helped shape the site into what it is today. When I'm not working on projects like this, you can usually find me doing cheerleading.",
     initials: "L",
     image: larImg,
     accentColor: "#ec4899",
@@ -31,9 +30,9 @@ const teamMembers = [
     bgTint: "#1f1320",
   },
   {
-    name: "Gedeon",
+    name: "Gideon",
     role: "Developer",
-    about: "Full-stack integration contributor for listings, admin moderation, marketplace, and merge planning.",
+    about: "Your about meGedeon Kazadi is a developer, designer, and aspiring cloud engineer passionate about building practical digital solutions. With experience in front-end development, UI/UX design, embedded systems, and growing backend skills, he enjoys creating systems that support meaningful user experiences. On the Student Slide project, he contributed to full-stack integration, listing CRUD functionality, role-based admin access, database-connected marketplace features, and merge planning.",
     initials: "G",
     image: gedionImg,
     accentColor: "#34d399",
@@ -44,7 +43,7 @@ const teamMembers = [
   {
     name: "Nkanyiso",
     role: "Developer",
-    about: "Marketplace and cart contributor helping shape the buyer-side experience.",
+    about: "Hi, I'm Nkanyiso Nkosi — an Interactive Development student and co-creator of StudentSlide. I've always been drawn to the intersection of technology and everyday life, and this project gave me the opportunity to build something that sits right at that crossroads. StudentSlide is more than just a student marketplace — it's a platform designed to make life a little easier and a little more affordable for students who are navigating the very real financial pressures that come with studying.",
     initials: "N",
     image: nkaniImg,
     accentColor: "#fbbf24",
@@ -67,12 +66,12 @@ export default function AboutUs({ user, onLogout }) {
           <span className="aboutHeroAccent">for students.</span>
         </h1>
         <p className="aboutHeroSubtext">
-          StudentSlide was created to make campus life easier - a place where
+          StudentSlide was created to make campus life easier — a place where
           students can buy, sell, and trade everything from textbooks to bicycles.
         </p>
-        <Link to="/marketplace" className="aboutButton">
+        <a href="/marketplace" className="aboutButton">
           Explore Marketplace
-        </Link>
+        </a>
       </section>
 
       {/* About StudentSlide */}
@@ -87,7 +86,7 @@ export default function AboutUs({ user, onLogout }) {
               StudentSlide is a student-to-student marketplace designed to make
               campus life more affordable and connected. Whether you need a
               second-hand textbook, want to sell your old laptop, or trade your
-              bicycle - StudentSlide is your campus hub.
+              bicycle — StudentSlide is your campus hub.
             </p>
             <p className="aboutCardText">
               With built-in messaging, category filtering, and a trusted
