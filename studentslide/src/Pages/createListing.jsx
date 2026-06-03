@@ -21,6 +21,7 @@ import {
   updateListingState as saveListingState,
 } from '../api/listings';
 import logo from '../assets/StudentSlide_Logo_Full.png';
+import { rememberDemoOfferListing } from '../data/demoTrades';
 import { listingCategories } from '../data/sampleListings';
 
 const DEFAULT_CATEGORIES = listingCategories;
@@ -200,7 +201,11 @@ const CreateListing = ({ user, adminView = false }) => {
       if (editingListing) {
         await updateListing(editingListing._id, payload);
       } else {
-        await createListing(payload);
+        const createdListing = await createListing(payload);
+        rememberDemoOfferListing({
+          ...createdListing,
+          sellerName: [user?.name, user?.surname].filter(Boolean).join(' ') || user?.email || 'You',
+        });
       }
 
       setShowFormModal(false);

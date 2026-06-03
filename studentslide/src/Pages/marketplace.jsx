@@ -134,7 +134,7 @@ const Marketplace = ({ user, onLogout }) => {
                     >
                       ADD TO CART
                     </button>
-                    <span className="mp-star">Save</span>
+                    <span className="mp-star">Trade</span>
                   </div>
                 </article>
               ))}

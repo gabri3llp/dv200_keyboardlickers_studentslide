@@ -5,6 +5,7 @@ import { getListing } from '../api/listings';
 import logo from '../assets/StudentSlide_Logo_Full.png';
 import { useCart } from '../context/CartContext';
 import { getSampleListingById } from '../data/sampleListings';
+import { createDemoTradeMessage, getDemoOfferListings } from '../data/demoTrades';
 
 const ProductDetails = ({ user, onLogout }) => {
   const { id } = useParams();
@@ -13,9 +14,11 @@ const ProductDetails = ({ user, onLogout }) => {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [liked, setLiked] = useState(false);
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
+  const [showTradeModal, setShowTradeModal] = useState(false);
+  const [selectedOfferId, setSelectedOfferId] = useState('');
+  const [tradeNotice, setTradeNotice] = useState('');
 
   useEffect(() => {
     const loadListing = async () => {
@@ -42,6 +45,36 @@ const ProductDetails = ({ user, onLogout }) => {
     if (!comment.trim()) return;
     setComments((current) => [...current, { text: comment, time: new Date().toLocaleTimeString() }]);
     setComment('');
+  };
+
+  const offerListings = listing ? getDemoOfferListings(listing._id) : [];
+
+  const openTradeModal = () => {
+    if (!user) {
+      setTradeNotice('Sign in before requesting a trade.');
+      return;
+    }
+
+    setSelectedOfferId(offerListings[0]?._id || '');
+    setTradeNotice('');
+    setShowTradeModal(true);
+  };
+
+  const sendTradeRequest = () => {
+    const offeredListing = offerListings.find((item) => item._id === selectedOfferId);
+    if (!offeredListing) {
+      setTradeNotice('Choose a listing to offer first.');
+      return;
+    }
+
+    createDemoTradeMessage({
+      requestedListing: listing,
+      offeredListing,
+      user,
+    });
+
+    setShowTradeModal(false);
+    navigate('/messages');
   };
 
   if (loading) {
@@ -117,14 +150,12 @@ const ProductDetails = ({ user, onLogout }) => {
               <button className="pd-cart-btn" onClick={() => addToCart(listing)} type="button">
                 ADD TO CART
               </button>
-              <button
-                className={`pd-like-btn ${liked ? 'liked' : ''}`}
-                onClick={() => setLiked(!liked)}
-                type="button"
-              >
-                {liked ? 'Saved' : 'Save'}
+              <button className="pd-like-btn pd-trade-btn" onClick={openTradeModal} type="button">
+                Ask to Trade
               </button>
             </div>
+
+            {tradeNotice && <p className="pd-trade-notice">{tradeNotice}</p>}
 
             <div className="pd-meta">
               <span>Posted: {listing.createdAt ? new Date(listing.createdAt).toLocaleDateString() : 'Recently'}</span>
@@ -162,6 +193,65 @@ const ProductDetails = ({ user, onLogout }) => {
           </div>
         </div>
       </Container>
+
+      {showTradeModal && (
+        <div className="trade-modal-backdrop" role="presentation" onClick={() => setShowTradeModal(false)}>
+          <div
+            className="trade-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="trade-modal-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="trade-modal__header">
+              <p>Student trade request</p>
+              <h2 id="trade-modal-title">Choose what you want to offer</h2>
+            </div>
+
+            {offerListings.length === 0 ? (
+              <div className="trade-modal__empty">
+                <p>Create a listing before requesting a trade.</p>
+                <button type="button" onClick={() => navigate('/listings')}>
+                  Create Listing
+                </button>
+              </div>
+            ) : (
+              <>
+                <label className="trade-modal__label" htmlFor="trade-offer-listing">
+                  Your listing
+                </label>
+                <select
+                  id="trade-offer-listing"
+                  className="trade-modal__select"
+                  value={selectedOfferId}
+                  onChange={(event) => setSelectedOfferId(event.target.value)}
+                >
+                  {offerListings.map((item) => (
+                    <option key={item._id} value={item._id}>
+                      {item.title}
+                    </option>
+                  ))}
+                </select>
+
+                <div className="trade-modal__preview">
+                  Want to trade my{' '}
+                  <strong>{offerListings.find((item) => item._id === selectedOfferId)?.title}</strong>
+                  {' '}for your <strong>{listing.title}</strong>?
+                </div>
+
+                <div className="trade-modal__actions">
+                  <button type="button" className="trade-modal__ghost" onClick={() => setShowTradeModal(false)}>
+                    Cancel
+                  </button>
+                  <button type="button" className="trade-modal__send" onClick={sendTradeRequest}>
+                    Send to Messages
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

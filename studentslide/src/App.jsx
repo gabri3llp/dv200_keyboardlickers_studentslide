@@ -111,7 +111,7 @@ function AuthFlow() {
         path="/admin/listings"
         element={<AdminListings user={user} onLogout={handleLogout} />}
       />
-      <Route path="/messages" element={<Messages />} />
+      <Route path="/messages" element={<Messages user={user} onLogout={handleLogout} />} />
       <Route path="/aboutus" element={<AboutUs user={user} onLogout={handleLogout} />} />
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />

@@ -1,72 +1,147 @@
-import Navbar from '../Component/navbar';
-import Footer from '../Component/footer';
+import { Link } from "react-router-dom";
+import Navbar from "../Component/navbar";
+import Footer from "../Component/footer";
+import meImg from '../assets/Me.jpeg';
+import larImg from '../assets/lar.jpeg';
+import gedionImg from '../assets/Gedion.jpeg';
+import nkaniImg from '../assets/Nkani.jpeg';
+import "./aboutUS.css";
 
-const AboutUs = ({ user, onLogout }) => {
+const teamMembers = [
+  {
+    name: "Gabriel",
+    role: "Developer",
+    about: "Backend and database contributor supporting the core StudentSlide data flow.",
+    initials: "G",
+    image: meImg,
+    accentColor: "#a78bfa",
+    gradientStart: "#c084fc",
+    gradientEnd: "#7c3aed",
+    bgTint: "#1e1728",
+  },
+  {
+    name: "Larissa",
+    role: "Developer",
+    about: "Authentication and user-flow contributor focused on the creative login experience.",
+    initials: "L",
+    image: larImg,
+    accentColor: "#ec4899",
+    gradientStart: "#f9a8d4",
+    gradientEnd: "#db2777",
+    bgTint: "#1f1320",
+  },
+  {
+    name: "Gedeon",
+    role: "Developer",
+    about: "Full-stack integration contributor for listings, admin moderation, marketplace, and merge planning.",
+    initials: "G",
+    image: gedionImg,
+    accentColor: "#34d399",
+    gradientStart: "#6ee7b7",
+    gradientEnd: "#059669",
+    bgTint: "#0f1f1a",
+  },
+  {
+    name: "Nkanyiso",
+    role: "Developer",
+    about: "Marketplace and cart contributor helping shape the buyer-side experience.",
+    initials: "N",
+    image: nkaniImg,
+    accentColor: "#fbbf24",
+    gradientStart: "#fcd34d",
+    gradientEnd: "#d97706",
+    bgTint: "#1f1a0d",
+  },
+];
+
+export default function AboutUs({ user, onLogout }) {
   return (
-    <div className="about-page">
+    <div className="aboutPage">
       <Navbar isLoggedIn={Boolean(user)} user={user} onLogout={onLogout} />
 
-      <main>
-        <section className="about-hero">
-          <div className="about-hero__copy">
-            <p className="about-kicker">StudentSlide</p>
-            <h1>Pass useful things on, keep student life moving.</h1>
-            <p>
-              StudentSlide is a campus marketplace for students to sell, discover, and request
-              everyday items from one another, from textbooks and electronics to dorm essentials.
+      {/* Hero */}
+      <section className="aboutHero">
+        <p className="aboutEyebrow">WHO WE ARE</p>
+        <h1 className="aboutHeroHeading">
+          Built by students,<br />
+          <span className="aboutHeroAccent">for students.</span>
+        </h1>
+        <p className="aboutHeroSubtext">
+          StudentSlide was created to make campus life easier - a place where
+          students can buy, sell, and trade everything from textbooks to bicycles.
+        </p>
+        <Link to="/marketplace" className="aboutButton">
+          Explore Marketplace
+        </Link>
+      </section>
+
+      {/* About StudentSlide */}
+      <section className="aboutSection">
+        <div className="aboutCard">
+          <div className="aboutCardLeft">
+            <p className="aboutCardEyebrow">THE PLATFORM</p>
+            <h2 className="aboutCardHeading">What is StudentSlide?</h2>
+          </div>
+          <div className="aboutCardRight">
+            <p className="aboutCardText">
+              StudentSlide is a student-to-student marketplace designed to make
+              campus life more affordable and connected. Whether you need a
+              second-hand textbook, want to sell your old laptop, or trade your
+              bicycle - StudentSlide is your campus hub.
+            </p>
+            <p className="aboutCardText">
+              With built-in messaging, category filtering, and a trusted
+              community of verified students, we make peer-to-peer trading
+              simple, safe, and social.
             </p>
           </div>
-          <div className="about-hero__panel">
-            <span>Moderated listings</span>
-            <strong>Pending to live</strong>
-            <p>Products are reviewed before they appear publicly on the marketplace.</p>
-          </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="about-section">
-          <div>
-            <p className="about-kicker">Why it exists</p>
-            <h2>Built around student trust</h2>
-          </div>
-          <p>
-            The app keeps the buying flow simple while giving admins and moderators a way to
-            approve listings, reduce clutter, and make the marketplace safer for class demos.
-          </p>
-        </section>
+      {/* Team */}
+      <section className="aboutTeamSection">
+        <p className="aboutEyebrow">THE TEAM</p>
+        <h2 className="aboutTeamHeading">Meet the people behind it</h2>
 
-        <section className="about-values">
-          <article>
-            <span>01</span>
-            <h3>List</h3>
-            <p>Sellers add products with title, category, price, description, and image.</p>
-          </article>
-          <article>
-            <span>02</span>
-            <h3>Review</h3>
-            <p>Admins or moderators approve pending posts before buyers can see them.</p>
-          </article>
-          <article>
-            <span>03</span>
-            <h3>Trade</h3>
-            <p>Buyers browse live listings, save products, comment, and add items to cart.</p>
-          </article>
-        </section>
+        <div className="aboutTeamGrid">
+          {teamMembers.map((member, index) => (
+            <div
+              key={index}
+              className="aboutTeamCard"
+              style={{ borderTopColor: member.accentColor }}
+            >
+              {/* Photo area */}
+              <div
+                className="aboutTeamPhotoWrap"
+                style={{ background: member.bgTint }}
+              >
+                <div className="aboutTeamAvatar" style={{
+                   background: member.image ? 'none' : `radial-gradient(circle at 40% 40%, ${member.gradientStart}, ${member.gradientEnd})`,
+                }}>
+                  {member.image
+                    ? <img src={member.image} alt={member.name} style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                    : member.initials
+                  }
+              </div>
+              </div>
 
-        <section className="about-section about-team">
-          <div>
-            <p className="about-kicker">Keyboard Lickers</p>
-            <h2>Group project contribution</h2>
-          </div>
-          <p>
-            The current build focuses on a MERN workflow: authentication, role-based access,
-            listing CRUD, marketplace display, product details, and a frontend cart path.
-          </p>
-        </section>
-      </main>
+              {/* Info */}
+              <div className="aboutTeamInfo">
+                <h3
+                  className="aboutTeamName"
+                  style={{ color: "#fbbf24" }}
+                >
+                  {member.name}
+                </h3>
+                <p className="aboutTeamRole">{member.role}</p>
+                <p className="aboutTeamAbout">{member.about}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <Footer />
     </div>
   );
-};
-
-export default AboutUs;
+}
