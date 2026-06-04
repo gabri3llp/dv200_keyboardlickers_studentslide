@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logo from "../assets/StudentSlide_Logo_Full.png";
 
 const Footer = () => {
   const year = new Date().getFullYear();
@@ -10,7 +11,7 @@ const Footer = () => {
         
         <div className="footer__brand">
           <Link to="/" className="footer__logo">
-            <span className="footer__logo-icon">S</span>
+            <img src={logo} alt="StudentSlide" className="footer__logo-icon footer__logo-image" />
             <span className="footer__logo-text">StudentSlide</span>
           </Link>
           <p className="footer__tagline">

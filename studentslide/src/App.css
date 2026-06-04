@@ -4995,6 +4995,118 @@
   }
 }
 
+.mp-trade-card-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.55rem;
+  padding: 0.45rem 0.9rem;
+  min-height: 34px;
+  border: 1px solid rgba(167, 139, 250, 0.65);
+  border-radius: 999px;
+  background: #a78bfa;
+  color: #111;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(167, 139, 250, 0.22);
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.mp-trade-card-btn:hover {
+  background: #c4b5fd;
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(167, 139, 250, 0.3);
+}
+
+.mp-trade-card-btn:focus-visible {
+  outline: 3px solid rgba(196, 181, 253, 0.45);
+  outline-offset: 2px;
+}
+
+/* Marketplace and footer polish */
+.mp-container {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 3rem;
+}
+
+.mp-filters {
+  justify-content: center;
+}
+
+.mp-grid {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 280px));
+  justify-content: center;
+}
+
+.mp-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.mp-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.mp-card-category {
+  color: #93c5fd;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mp-card-title {
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+}
+
+.mp-card-desc {
+  color: #d4d4d8;
+}
+
+.mp-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: auto;
+}
+
+.mp-card-actions .mp-cart-btn,
+.mp-card-actions .mp-trade-card-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-right: 0.55rem;
+  padding-left: 0.55rem;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.mp-trade-card-btn {
+  margin-left: 0;
+}
+
+.mp-count,
+.mp-loading,
+.mp-empty {
+  text-align: center;
+}
+
+.footer__logo-image {
+  display: block;
+  box-sizing: border-box;
+  width: 42px;
+  height: 34px;
+  padding: 0.25rem;
+  object-fit: contain;
+}
+
+@media (max-width: 900px) {
   .navbar__hamburger {
     display: block;
   }
@@ -5024,3 +5136,4 @@
     align-items: flex-start;
     flex-direction: column;
   }
+}

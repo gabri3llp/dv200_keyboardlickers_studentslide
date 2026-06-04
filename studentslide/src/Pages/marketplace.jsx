@@ -127,14 +127,25 @@ const Marketplace = ({ user, onLogout }) => {
                     <p className="mp-card-seller">Listed by {listing.sellerName || 'Student seller'}</p>
                     <p className="mp-card-desc">{listing.description}</p>
                     <p className="mp-card-price">R {Number(listing.price).toFixed(2)}</p>
-                    <button
-                      className="mp-cart-btn"
-                      onClick={(event) => handleAddToCart(event, listing)}
-                      type="button"
-                    >
-                      ADD TO CART
-                    </button>
-                    <span className="mp-star">Trade</span>
+                    <div className="mp-card-actions">
+                      <button
+                        className="mp-cart-btn"
+                        onClick={(event) => handleAddToCart(event, listing)}
+                        type="button"
+                      >
+                        ADD TO CART
+                      </button>
+                      <button
+                        className="mp-trade-card-btn"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          navigate(`/product/${listing._id}`);
+                        }}
+                        type="button"
+                      >
+                        TRADE
+                      </button>
+                    </div>
                   </div>
                 </article>
               ))}
