@@ -113,4 +113,3 @@ router.delete('/:id', async (req, res) => {
 
 module.exports = router;
 
-// make sure you understand everything in this code, and how it connects to the rest of the backend. This is where you will be doing most of your work for the marketplace, so you need to understand how it works.
