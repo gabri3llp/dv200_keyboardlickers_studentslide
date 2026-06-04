@@ -111,8 +111,3 @@ studentslide/
 This frontend connects to a Node.js + Express backend with a MongoDB database. Make sure the backend server is running before starting the frontend. API requests are made to the backend to handle authentication, listings, messages, cart, and admin operations.
 
 ---
-
-## Notes
-
-- Environment variables (API base URL, etc.) should be stored in a `.env` file at the root. See `.gitignore` — this file is excluded from version control.
-- The `dist/` folder is generated on build and is also excluded from version control.
