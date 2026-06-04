@@ -17,12 +17,12 @@ export default function OrderSummary() {
 
       <div className="order-summary-row">
         <span>Subtotal</span>
-        <span>${total.toFixed(2)}</span>
+        <span>R{total.toFixed(2)}</span>
       </div>
 
       <div className="order-summary-row">
         <span>Tax (10%)</span>
-        <span>${tax.toFixed(2)}</span>
+        <span>R{tax.toFixed(2)}</span>
       </div>
 
       <div className="order-summary-row">
@@ -30,14 +30,14 @@ export default function OrderSummary() {
         <span>
           {shipping === 0
             ? <span className="order-summary-free">Free</span>
-            : `$${shipping.toFixed(2)}`
+            : `R${shipping.toFixed(2)}`
           }
         </span>
       </div>
 
       <div className="order-summary-row total">
         <span>Total</span>
-        <span>${grandTotal.toFixed(2)}</span>
+        <span>R{grandTotal.toFixed(2)}</span>
       </div>
 
       <button

@@ -7,7 +7,7 @@ const Footer = () => {
     <footer className="footer">
       <div className="footer__inner">
 
-        {/* Brand column */}
+        
         <div className="footer__brand">
           <Link to="/" className="footer__logo">
             <span className="footer__logo-icon">S</span>
@@ -17,7 +17,7 @@ const Footer = () => {
             The marketplace built for students. Buy, sell, and connect on campus.
           </p>
           <div className="footer__socials">
-            <a href="https://instagram.com" className="footer__social-link" aria-label="Instagram" target="_blank" rel="noreferrer">
+            <a href="https://www.instagram.com/openwindowinstitute/?hl=en" className="footer__social-link" aria-label="Instagram" target="_blank" rel="noreferrer">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
                 <circle cx="12" cy="12" r="4"/>
@@ -38,7 +38,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Explore links */}
         <div className="footer__col">
           <h4 className="footer__col-heading">Explore</h4>
           <ul className="footer__col-links">
@@ -49,7 +48,7 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Account links */}
+       
         <div className="footer__col">
           <h4 className="footer__col-heading">Account</h4>
           <ul className="footer__col-links">
@@ -60,7 +59,7 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Newsletter */}
+        
         <div className="footer__newsletter">
           <h4 className="footer__col-heading">Stay in the loop</h4>
           <p className="footer__newsletter-text">Get notified when new listings drop near you.</p>
@@ -79,7 +78,7 @@ const Footer = () => {
 
       </div>
 
-      {/* Bottom bar */}
+      
       <div className="footer__bottom">
         <p className="footer__copy">(c) {year} StudentSlide. All rights reserved.</p>
         <div className="footer__legal">

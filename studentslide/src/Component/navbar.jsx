@@ -38,7 +38,7 @@ const Navbar = ({ isLoggedIn = false, user = null, onLogout }) => {
         )}
       </div>
 
-      {/* Mobile hamburger */}
+      
       <button
         className={`navbar__hamburger ${menuOpen ? "navbar__hamburger--open" : ""}`}
         onClick={() => setMenuOpen(!menuOpen)}
@@ -49,7 +49,7 @@ const Navbar = ({ isLoggedIn = false, user = null, onLogout }) => {
         <span />
       </button>
 
-      {/* Mobile menu */}
+     
       {menuOpen && (
         <div className="navbar__mobile-menu">
           <Link to="/marketplace" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>Marketplace</Link>

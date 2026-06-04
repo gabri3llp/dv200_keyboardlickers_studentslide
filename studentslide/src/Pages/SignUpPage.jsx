@@ -153,12 +153,12 @@ export default function SignUpPage({ onNext }) {
 
       <AnimatedBackground />
 
-      {/* Logo */}
+      
       <div style={{ marginBottom: 24, position: "relative", zIndex: 2 }}>
         <img src={logo} alt="Student Slide" style={{ maxWidth: 320, width: "100%" }} />
       </div>
 
-      {/* Card */}
+      
       <div style={{
         background: "rgba(20, 18, 32, 0.75)",
         backdropFilter: "blur(20px)",
@@ -173,7 +173,7 @@ export default function SignUpPage({ onNext }) {
         boxShadow: "0 25px 60px rgba(0,0,0,0.5)",
       }}>
 
-        {/* Title */}
+        
         <div style={{ textAlign: "center", marginBottom: 24 }}>
           <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 14, margin: "0 0 2px" }}>
             Welcome to
@@ -183,7 +183,7 @@ export default function SignUpPage({ onNext }) {
           </h1>
         </div>
 
-        {/* Tab switcher */}
+        
         <div style={{
           display: "flex",
           background: "rgba(255,255,255,0.06)",
@@ -215,7 +215,7 @@ export default function SignUpPage({ onNext }) {
           ))}
         </div>
 
-        {/* Sign Up Form */}
+        
         {mode === "signup" ? (
           <form onSubmit={handleSignUp} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -273,7 +273,7 @@ export default function SignUpPage({ onNext }) {
           </form>
 
         ) : (
-          /* Sign In Form */
+          
           <form onSubmit={handleSignIn} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
               <label style={labelStyle}>Student Email</label>

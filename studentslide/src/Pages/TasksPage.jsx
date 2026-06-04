@@ -297,7 +297,7 @@ export default function TasksPage({ mode, username, color, sequence, onSuccess, 
     );
   }
 
-  // ── Task execution screen ────────────────────────────────────────────────
+
   const currentId = pickedSequence[taskIndex];
   const TaskComponent = TASK_MAP[currentId];
 

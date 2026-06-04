@@ -20,7 +20,7 @@ const RIGHT_ORDER = [
 
 export default function Wires({ onComplete }) {
   const [selectedLeft, setSelectedLeft] = useState(null);
-  const [matched, setMatched]           = useState({}); // { leftId: rightId }
+  const [matched, setMatched]           = useState({}); 
   const [wrongPair, setWrongPair]       = useState(null);
   const [flash, setFlash]               = useState(null);
 
@@ -75,7 +75,7 @@ export default function Wires({ onComplete }) {
       </div>
 
       <div style={styles.board}>
-        {/* left side */}
+        
         <div style={styles.col}>
           {WIRE_COLORS.map(w => {
             const state = getLeftState(w.id);
