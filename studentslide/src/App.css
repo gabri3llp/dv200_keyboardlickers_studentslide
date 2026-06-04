@@ -1032,7 +1032,7 @@
 }
 
 
-/*  NAVBAR ── */
+/*  NAVBAR  */
 .mp-nav {
   display: flex;
   align-items: center;
@@ -3487,7 +3487,7 @@
 }
 
 
-/*  NAVBAR ── */
+/*  NAVBAR  */
 .mp-nav {
   display: flex;
   align-items: center;
@@ -4769,7 +4769,7 @@
   gap: 1rem;
 }
 
-/* ── About Us Page ───────────────────────────── */
+/*  About Us Page */
 .aboutPage {
   background: #0d0d0d;
   min-height: 100vh;
@@ -4777,7 +4777,7 @@
   font-family: 'Segoe UI', sans-serif;
 }
 
-/* ── Hero section ───────────────────────────── */
+/*  Hero section */
 .aboutHero {
   text-align: center;
   padding: 100px 20px 80px;
@@ -4835,7 +4835,7 @@
   transform: translateY(-2px);
 }
 
-/* ── About StudentSlide section ─────────────── */
+/*  About StudentSlide section ─ */
 .aboutSection {
   max-width: 1000px;
   margin: 70px auto;
@@ -4881,7 +4881,7 @@
   margin-bottom: 16px;
 }
 
-/* ── Team section ───────────────────────────── */
+/*  Team section */
 .aboutTeamSection {
   max-width: 1100px;
   margin: 0 auto 80px;
@@ -4903,7 +4903,7 @@
   text-align: left;
 }
 
-/* ── Team card ──────────────────────────────── */
+/*  Team card─ */
 .aboutTeamCard {
   background: #161616;
   border-radius: 14px;
@@ -4973,7 +4973,7 @@
   margin: 0;
 }
 
-/* ── Responsive ─────────────────────────────── */
+/*  Responsive */
 @media (max-width: 900px) {
   .aboutTeamGrid {
     grid-template-columns: repeat(2, 1fr);
