@@ -20,7 +20,7 @@ function makeRock(id) {
 
 export default function Asteroids({ onComplete }) {
   const [rocks, setRocks]       = useState(() => Array.from({ length: TOTAL_ROCKS }, (_, i) => makeRock(i)));
-  const [exploding, setExploding] = useState([]); // { id, x, y }
+  const [exploding, setExploding] = useState([]);
   const [destroyed, setDestroyed] = useState(0);
   const [done, setDone]         = useState(false);
   const frameRef                = useRef(null);

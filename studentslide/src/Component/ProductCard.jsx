@@ -21,7 +21,7 @@ export default function ProductCard({ product }) {
   return (
     <Card className="product-card">
 
-      {/* ── Product image ── */}
+      {/*Product image*/}
       <Card.Img
         variant="top"
         src={product.img}
@@ -33,12 +33,12 @@ export default function ProductCard({ product }) {
         }}
       />
 
-      {/* ── Card body ── */}
+      {/*Card body*/}
       <Card.Body className="product-card__body">
         <Card.Title className="product-card__title">{product.title}</Card.Title>
         <Card.Text className="product-card__text">{product.description}</Card.Text>
 
-        {/* ADD TO CART button */}
+        {/*ADD TO CART button*/}
         <Button
           className="product-card__btn"
           onClick={() => navigate(`/productDetails/${product.id}`)}
@@ -46,7 +46,7 @@ export default function ProductCard({ product }) {
           ADD TO CART
         </Button>
 
-        {/* ── Star / favourite ── */}
+        {/*Trade*/}
         <button
           className={`product-card__star${bursting ? " product-card__star--burst" : ""}`}
           onClick={toggleFav}
@@ -58,7 +58,7 @@ export default function ProductCard({ product }) {
             <i className="fa-regular fa-star" />
           )}
 
-          {/* Burst particles */}
+        
           {bursting && (
             <span className="product-card__particles" aria-hidden="true">
               {[0, 1, 2, 3, 4, 5].map((i) => (

@@ -13,20 +13,20 @@ const SignIn = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
     console.log(form)
-    // API call goes here later
+    
   }
 
   return (
     <div className="auth-background">
       <Container className="d-flex flex-column align-items-center justify-content-center min-vh-100">
 
-        {/* Logo placeholder */}
+        
         <div className="mb-4 text-center">
           <h2 className="text-white fw-bold">STUDENT SLIDE</h2>
           <span className="text-warning">— PASS IT ON —</span>
         </div>
 
-        {/* Card */}
+       
         <div className="auth-card w-100">
           <h5 className="text-center text-white mb-1">Welcome to</h5>
           <h2 className="text-center auth-title mb-4">Student Slide!</h2>
