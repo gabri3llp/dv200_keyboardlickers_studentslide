@@ -180,7 +180,7 @@ Future work includes server-enforced permissions and listing ownership, private 
 ## Credits and use terms
 
 - **Team:** Keyboard Lickers — Gabriel Pulella, Larissa Heyns, Gedeon Kazadi and Nkanyiso Nkosi.
-- **Portfolio contact:** [Gedeon Kazadi](https://github.com/GKaz17) · [21100471@virtualwindow.co.za](mailto:21100471@virtualwindow.co.za)
+- **Portfolio contact:** [Gedeon Kazadi](https://github.com/GKaz17) · [gedeonkazadi017@yahoo.com](mailto:gedeonkazadi017@yahoo.com)
 - **Scaffolding and libraries:** [Vite](https://vite.dev/), [React](https://react.dev/), [React Router](https://reactrouter.com/), [Bootstrap](https://getbootstrap.com/), [React Bootstrap](https://react-bootstrap.github.io/), [Express](https://expressjs.com/), [MongoDB](https://www.mongodb.com/) / [Mongoose](https://mongoosejs.com/), bcrypt, JSON Web Tokens, dotenv and cors. Versions are retained in the package manifests and lockfiles.
 - **Design and assets:** Existing StudentSlide logos, team portraits and interface assets are retained. The sample catalogue contains externally hosted product images; original image-source attribution still needs a team review. No unverified image ownership is claimed.
 - **AI assistance:** ChatGPT and Codex supported research into unfamiliar technical approaches, implementation, debugging and documentation.
