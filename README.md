@@ -169,7 +169,7 @@ The responsibilities below are recorded in the current [About Us source](student
 
 The shared repository contains both services and the local setup above. A deployed StudentSlide URL has not been verified, so none is presented as a working release.
 
-**Demo video:** the required 5–8 minute recording has not yet been linked.
+**Demo video:** [Watch the StudentSlide group presentation](https://drive.google.com/file/d/1S81Xf9d-_TRjsr9Tt9hZlHwXHAvVjET3/view). The recording is available in Drive; its runtime and anonymous playback still need verification against the required 5–8 minutes.
 
 ## Conclusion
 
