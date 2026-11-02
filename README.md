@@ -1,113 +1,187 @@
-# StudentSlide — Frontend
+<p align="center"><img src="studentslide/src/assets/StudentSlide_Logo_Full.png" width="280" alt="StudentSlide logo" /></p>
 
-> A student marketplace for buying, selling, and trading second-hand items within the student community.
+# StudentSlide
 
----
+**Student marketplace · MERN web application · Keyboard Lickers**<br>
+**Portfolio author:** Gedeon Kazadi · DV200, Semester 1 · Shared group repository
 
-## About the Project
+[Shared repository](https://github.com/gabri3llp/dv200_keyboardlickers_studentslide) · [Frontend source](studentslide/src) · [Backend source](studentslide/Backend)
 
-StudentSlide is a full-stack web application that connects students who want to sell items they no longer need with students looking for affordable second-hand goods — textbooks, electronics, study materials, and more.
+## Contents
 
-This repository contains the **React frontend**, built with Vite.
+- [About the project](#about-the-project)
+- [Getting started](#getting-started)
+- [Features](#features)
+- [Development process](#development-process)
+- [Team contributions](#team-contributions)
+- [Final outcome](#final-outcome)
+- [Conclusion](#conclusion)
+- [Credits and use terms](#credits-and-use-terms)
 
----
+## About the project
 
-## Tech Stack
+StudentSlide is a student-to-student marketplace for affordable second-hand goods. Students can browse listings, create items and explore a creative colour-and-sequence sign-in flow. A moderation interface supports reviewing pending items. The project combines a React interface with Express routes and MongoDB models, while some buyer journeys remain local demonstrations. I contributed to listings, moderation and full-stack integration as part of Keyboard Lickers.
 
-| Technology | Purpose |
-|---|---|
-| React 19 | UI component library |
-| React Router DOM v7 | Client-side routing and navigation |
-| React Bootstrap + Bootstrap 5 | UI components and responsive styling |
-| Vite | Development server and build tool |
-| ESLint | Code linting and quality checks |
+**Technologies:** React 19, React Router 7, Vite 8, React Bootstrap, Bootstrap 5, Node.js, Express 5, MongoDB/Mongoose, bcrypt and JSON Web Tokens. Both frontend and backend are in this repository.
 
----
-
-## Getting Started
+## Getting started
 
 ### Prerequisites
 
-- Node.js (v18 or higher recommended)
-- npm
+- Node.js **22.12 or later** and npm for the Vite 8 frontend.
+- Git and MongoDB: a local server or your own Atlas development database.
+- Two terminals: one for Express and one for Vite.
 
-### Installation
+### Clone and configure the backend
 
-1. Clone the repository:
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/gabri3llp/dv200_keyboardlickers_studentslide.git
+cd dv200_keyboardlickers_studentslide
+```
+
+Copy the root `.env.example` to root `.env`. The backend explicitly loads that root file, not a file inside `Backend`.
+
+```env
+MONGO_URI=mongodb://127.0.0.1:27017/studentslide
+PORT=5000
+JWT_SECRET=replace_with_your_own_random_local_value
+```
+
+For Atlas, substitute your own connection string and configure its database user and network access. Keep `.env` untracked. Use a disposable development database with fictional users.
+
+```bash
+cd studentslide/Backend
+npm ci
+npm start
+```
+
+The server starts on port 5000 **after** MongoDB connects. Inspect the terminal if it never starts. `npm start` runs `node server.js`; the optional `dev` script requires nodemon, which is not currently declared as a dependency.
+
+### Start the frontend
+
+In a second terminal, from the repository root:
+
+```bash
 cd studentslide
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Start the development server:
-```bash
+npm ci
 npm run dev
 ```
 
-The app will run at `http://localhost:5173` by default.
+Open [localhost:5173](http://localhost:5173/). The API base is currently hard-coded as `http://localhost:5000/api` in [`src/api/client.js`](studentslide/src/api/client.js). Changing `PORT` therefore also requires changing that base URL. The frontend does not currently use `VITE_API_URL`.
 
----
+Register a development account using the creative sign-up flow. For a local moderation demonstration, set that account’s `role` to `admin` in your own test database, then sign out and back in. There is no seeded administrator or universal demonstration password.
 
-## Available Scripts
+## Features
 
-| Script | Description |
-|---|---|
-| `npm run dev` | Start the Vite development server with hot module replacement |
-| `npm run build` | Build the app for production into the `dist/` folder |
-| `npm run preview` | Preview the production build locally |
-| `npm run lint` | Run ESLint to check for code issues |
+| Journey | Current implementation |
+| --- | --- |
+| Accounts | Creative colour/sequence registration and login, MongoDB user records and a JWT-backed browser session. This is a classroom prototype, not a verified-student or production-secure identity service. |
+| Marketplace | Search and category filtering. The UI falls back to sample listings when no live listings are returned or the API fails. |
+| Listings | Express/Mongoose endpoints create, fetch, edit and delete listing records. Creation defaults to `pending`; ownership enforcement is unfinished. |
+| Moderation | Admin/moderator UI approves pending listings, unpublishes live ones and deletes rejected records through the API. Role-header fallback remains a development limitation. |
+| Cart | Shared React state manages quantities and totals. Checkout is a frontend demonstration; orders and payments are not persisted. |
+| Trade messages | Offers/messages are held in browser local storage. They are not delivered to another user or persisted by a messaging API. |
+| Comments | No connected comments API is implemented. |
 
----
+![StudentSlide marketplace](docs/images/marketplace.png)
 
-## Project Structure
+The screenshot shows the local marketplace interface. Sample listings are demonstration content, not proof of a populated or connected database.
 
+## Development process
+
+### Architecture and user flow
+
+```mermaid
+flowchart LR
+  U[Student] --> R[React routes and shared state]
+  R --> A[API client: localhost:5000/api]
+  A --> E[Express routes]
+  E --> M[(MongoDB via Mongoose)]
+  R --> L[Browser storage: session and demo messages]
+  R --> C[In-memory cart]
+  E --> V[Pending listing review]
+  V --> P[Live marketplace listing]
 ```
-studentslide/
-├── public/
-├── src/
-│   ├── assets/          # Images, logos, static files
-│   ├── components/      # Reusable React components
-│   ├── pages/           # Page-level components (Marketplace, Cart, Login, etc.)
-│   └── main.jsx         # App entry point
-├── index.html
-├── vite.config.js
-├── eslint.config.js
-└── package.json
+
+A seller creates a pending listing. A moderator reviews it and changes its state to `live`. The marketplace fetches live records, while the local sample catalogue supports interface demonstrations when the service has no data.
+
+```mermaid
+erDiagram
+  STUDENT {
+    ObjectId _id PK
+    string email UK
+    string studentNum UK
+    string role
+    string color
+    array sequence
+  }
+  LISTING {
+    ObjectId _id PK
+    string title
+    string category
+    number price
+    string listingState
+  }
+  CATEGORY {
+    ObjectId _id PK
+    string name UK
+    string slug UK
+  }
 ```
 
----
+This diagram follows the current [Mongoose models](studentslide/Backend/Model). There is no stored seller reference on listings; category is a string, not a foreign-key relationship. Messaging and orders have no database models.
 
-## Key Features
+### Code decision: pending-first moderation
 
-- **Authentication** — Secure user registration and login with protected routes
-- **Marketplace** — Browse, search, and filter student listings
-- **Listing Management** — Create, edit, and delete your own listings
-- **Shopping Cart** — Add and remove items from your cart
-- **Messaging** — Communicate directly with buyers and sellers
-- **Comments** — Engage with listings through comments
-- **Admin Dashboard** — Review and approve or reject pending listings
-- **Responsive Design** — Works across desktop and mobile devices
+From [`Backend/Model/listings.js`](studentslide/Backend/Model/listings.js):
 
----
+```js
+listingState: { type: String, enum: ['pending', 'live'], default: 'pending' }
+```
 
-## Team
+New listings enter review before publication. The state route accepts only these two values; rejecting a listing deletes it rather than storing a separate rejected status. The API restricts editable content fields so an ordinary edit does not directly set `listingState`.
 
-| Name | Student Number | Role |
-|---|---|---|
-| Gabriel Pulella | 251298 | Git Manager |
-| Gedeon Kazadi | 21100471 | Admin Manager |
-| Larissa Heyns | 251048 | Meeting Planner |
-| Nkanyiso Nkosi | 251306 | Project Manager |
+### Challenges and checks
 
----
+The team had to join separately developed authentication, marketplace, cart and admin screens. Shared API helpers and session state reduce inconsistent requests. Explicitly documenting local trade/cart behaviour avoids presenting a UI prototype as completed server functionality.
 
-## Backend
+```bash
+# Run from studentslide/
+npm run lint
+npm run build
+npm run preview
+```
 
-This frontend connects to a Node.js + Express backend with a MongoDB database. Make sure the backend server is running before starting the frontend. API requests are made to the backend to handle authentication, listings, messages, cart, and admin operations.
+The backend `npm test` script is a placeholder that exits with an error; it is not an automated test suite. End-to-end database and multi-user messaging tests are not claimed. A useful manual check is to create a fictional listing, approve it, refresh the marketplace and verify the stored state in MongoDB. Separately test the sample-data fallback with the backend stopped.
 
----
+## Team contributions
+
+The responsibilities below are recorded in the current [About Us source](studentslide/src/Pages/aboutUS.jsx); they are not inferred solely from project-management titles or commit counts.
+
+| Member | Student number | Recorded implementation contribution | Coordination role |
+| --- | --- | --- | --- |
+| Gabriel Pulella | 251298 | Backend and database work supporting the core data flow. | Git Manager |
+| Larissa Heyns | 251048 | Authentication and the creative login/user flow. | Meeting Planner |
+| Gedeon Kazadi | 21100471 | Full-stack integration for listings, admin moderation, marketplace and merge planning. | Admin Manager |
+| Nkanyiso Nkosi | 251306 | Marketplace and cart work supporting the buyer experience. | Project Manager |
+
+## Final outcome
+
+The shared repository contains both services and the local setup above. A deployed StudentSlide URL has not been verified, so none is presented as a working release.
+
+**Demo video:** the required 5–8 minute recording has not yet been linked.
+
+## Conclusion
+
+StudentSlide brought four contributors’ screens into a shared marketplace journey. My main learning was coordinating data contracts and moderation behaviour across the interface and backend.
+
+Future work includes server-enforced permissions and listing ownership, private production JWT configuration, real message delivery, persisted carts/orders, removal or clearer labelling of fallback data, and automated integration coverage. These remain improvements rather than completed features.
+
+## Credits and use terms
+
+- **Team:** Keyboard Lickers — Gabriel Pulella, Larissa Heyns, Gedeon Kazadi and Nkanyiso Nkosi.
+- **Portfolio contact:** [Gedeon Kazadi](https://github.com/GKaz17) · [21100471@virtualwindow.co.za](mailto:21100471@virtualwindow.co.za)
+- **Scaffolding and libraries:** [Vite](https://vite.dev/), [React](https://react.dev/), [React Router](https://reactrouter.com/), [Bootstrap](https://getbootstrap.com/), [React Bootstrap](https://react-bootstrap.github.io/), [Express](https://expressjs.com/), [MongoDB](https://www.mongodb.com/) / [Mongoose](https://mongoosejs.com/), bcrypt, JSON Web Tokens, dotenv and cors. Versions are retained in the package manifests and lockfiles.
+- **Design and assets:** Existing StudentSlide logos, team portraits and interface assets are retained. The sample catalogue contains externally hosted product images; original image-source attribution still needs a team review. No unverified image ownership is claimed.
+- **AI assistance:** OpenAI ChatGPT/Codex assisted with implementation, debugging and portfolio documentation. The repository records the implemented work; missing demonstrations and unverified checks are identified explicitly.
+- **Use terms:** Shared academic/portfolio work. No repository-wide open-source licence is present; the backend package declares ISC, but this does not establish a licence for all team assets. Third-party resources retain their original rights. Any additional borrowed templates or assets still require their original creator credits.
