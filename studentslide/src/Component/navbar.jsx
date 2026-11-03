@@ -11,6 +11,7 @@ const Navbar = ({ isLoggedIn = false, user = null, onLogout }) => {
   const canManageListings = user?.role === 'admin' || user?.role === 'moderator';
 
   const isActive = (path) => location.pathname === path;
+  const isSellActive = isActive('/listings') || isActive('/createListing');
 
   return (
     <nav className="mp-nav">
@@ -20,7 +21,7 @@ const Navbar = ({ isLoggedIn = false, user = null, onLogout }) => {
 
       <div className="mp-nav-links">
         <Link to="/marketplace" className={`mp-nav-link ${isActive('/marketplace') ? 'active' : ''}`}>MARKETPLACE</Link>
-        <Link to="/listings" className={`mp-nav-link ${isActive('/listings') ? 'active' : ''}`}>SELL</Link>
+        <Link to="/listings" className={`mp-nav-link ${isSellActive ? 'active' : ''}`}>SELL</Link>
         {canManageListings && <Link to="/admin/listings" className="mp-nav-link">ADMIN</Link>}
         <Link to="/messages" className={`mp-nav-link ${isActive('/messages') ? 'active' : ''}`}>MESSAGES</Link>
         <Link to="/aboutus" className={`mp-nav-link ${isActive('/aboutus') ? 'active' : ''}`}>ABOUT US</Link>

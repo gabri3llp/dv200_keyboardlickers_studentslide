@@ -1,17 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  Alert,
-  Badge,
-  Button,
-  Col,
-  Container,
-  Form,
-  Modal,
-  Row,
-  Spinner,
-  Table,
-} from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Col, Form, Modal, Row, Spinner, Table } from 'react-bootstrap';
 import { apiRequest } from '../api/client';
 import {
   createListing,
@@ -20,7 +8,8 @@ import {
   updateListing,
   updateListingState as saveListingState,
 } from '../api/listings';
-import logo from '../assets/StudentSlide_Logo_Full.png';
+import Navbar from '../Component/navbar';
+import Footer from '../Component/footer';
 import { rememberDemoOfferListing } from '../data/demoTrades';
 import { listingCategories } from '../data/sampleListings';
 
@@ -34,7 +23,7 @@ const emptyForm = {
   image: '',
 };
 
-const CreateListing = ({ user, adminView = false }) => {
+const CreateListing = ({ user, onLogout, adminView = false }) => {
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const [form, setForm] = useState(emptyForm);
@@ -251,80 +240,62 @@ const CreateListing = ({ user, adminView = false }) => {
   };
 
   return (
-    <div className="listing-page">
-      <nav className="mp-nav admin-nav">
-        <Link to="/marketplace">
-          <img src={logo} alt="StudentSlide" className="mp-nav-logo" />
-        </Link>
-        <div className="mp-nav-links">
-          <Link to="/marketplace" className="mp-nav-link">MARKETPLACE</Link>
-          <Link to="/listings" className={`mp-nav-link ${!adminView ? 'active' : ''}`}>MY LISTINGS</Link>
-          {canReview && (
-            <Link to="/admin/listings" className={`mp-nav-link ${adminView ? 'active' : ''}`}>ADMIN</Link>
-          )}
-        </div>
-        <div className="mp-nav-right">
-          <span className="admin-role-pill">{user?.role || 'guest'}</span>
-        </div>
-      </nav>
+    <div className="ss-page">
+      <Navbar isLoggedIn={Boolean(user)} user={user} onLogout={onLogout} />
 
-      <Container className="py-5">
-        <div className="listing-toolbar">
+      <main className="ss-main">
+        <div className="ss-toolbar">
           <div>
-            <p className="listing-eyebrow">{adminView ? 'StudentSlide admin' : 'StudentSlide seller'}</p>
-            <h1 className="listing-title">{adminView ? 'Listing Review Queue' : 'My Listings'}</h1>
-            <p className="listing-subtitle">
+            <p className="ss-eyebrow">{adminView ? 'StudentSlide admin' : 'StudentSlide seller'}</p>
+            <h1 className="ss-title">
+              {adminView ? 'Listing Review Queue' : <>My <span className="ss-gradient-text">Listings</span></>}
+            </h1>
+            <p className="ss-subtitle">
               {adminView
                 ? 'Review pending products, approve live listings, and clean up test data.'
                 : 'Add products to MongoDB. New listings stay pending until an admin approves them.'}
             </p>
           </div>
 
-          <Button className="listing-primary-btn" onClick={openCreateModal}>
-            Add product
-          </Button>
+          <button type="button" className="ss-btn ss-btn--primary" onClick={openCreateModal}>
+            + Add product
+          </button>
         </div>
 
-        <Row className="g-3 mb-4">
-          <Col md={4}>
-            <div className="listing-stat">
-              <span>Total listings</span>
-              <strong>{listings.length}</strong>
-            </div>
-          </Col>
-          <Col md={4}>
-            <div className="listing-stat">
-              <span>Pending review</span>
-              <strong>{pendingCount}</strong>
-            </div>
-          </Col>
-          <Col md={4}>
-            <div className="listing-stat">
-              <span>Live marketplace</span>
-              <strong>{liveCount}</strong>
-            </div>
-          </Col>
-        </Row>
+        <div className="ss-stats">
+          <div className="ss-card ss-stat">
+            <span>Total listings</span>
+            <strong>{listings.length}</strong>
+          </div>
+          <div className="ss-card ss-stat">
+            <span>Pending review</span>
+            <strong>{pendingCount}</strong>
+          </div>
+          <div className="ss-card ss-stat">
+            <span>Live marketplace</span>
+            <strong>{liveCount}</strong>
+          </div>
+        </div>
 
-        {message && <Alert variant="success">{message}</Alert>}
-        {error && <Alert variant="danger">{error}</Alert>}
+        {message && <div className="ss-alert">{message}</div>}
+        {error && <div className="ss-alert ss-alert--error">{error}</div>}
 
-        <div className="listing-panel">
+        <div className="ss-card ss-panel">
           {loading ? (
-            <div className="listing-loading">
-              <Spinner animation="border" size="sm" />
+            <div className="ss-state">
+              <Spinner animation="border" size="sm" variant="info" />
               <span>Loading listings...</span>
             </div>
           ) : listings.length === 0 ? (
-            <div className="listing-empty">
+            <div className="ss-state">
               <h2>No products yet</h2>
               <p>Add the first product to test the database connection.</p>
-              <Button className="listing-primary-btn" onClick={openCreateModal}>
-                Add product
-              </Button>
+              <button type="button" className="ss-btn ss-btn--primary" onClick={openCreateModal}>
+                + Add product
+              </button>
             </div>
           ) : (
-            <Table responsive hover className="listing-table mb-0">
+            <Table responsive hover className="ss-table">
               <thead>
                 <tr>
                   <th>Product</th>
@@ -338,8 +309,8 @@ const CreateListing = ({ user, adminView = false }) => {
                 {listings.map((listing) => (
                   <tr key={listing._id}>
                     <td>
-                      <div className="listing-product-cell">
-                        <img src={listing.image} alt={listing.title} className="listing-thumb" />
+                      <div className="ss-product">
+                        <img src={listing.image} alt={listing.title} />
                         <div>
                           <strong>{listing.title}</strong>
                           <p>{listing.description}</p>
@@ -349,29 +320,29 @@ const CreateListing = ({ user, adminView = false }) => {
                     <td>{listing.category}</td>
                     <td>R {Number(listing.price).toFixed(2)}</td>
                     <td>
-                      <Badge bg={listing.listingState === 'live' ? 'success' : 'warning'} text={listing.listingState === 'live' ? undefined : 'dark'}>
+                      <span className={`ss-badge ss-badge--${listing.listingState === 'live' ? 'live' : 'pending'}`}>
                         {listing.listingState}
-                      </Badge>
+                      </span>
                     </td>
                     <td>
-                      <div className="listing-actions">
+                      <div className="ss-actions">
                         {canReview && (
                           listing.listingState !== 'live' ? (
-                            <Button size="sm" variant="outline-success" onClick={() => changeListingState(listing, 'live')}>
+                            <button type="button" className="ss-btn ss-btn--ghost ss-btn--sm" onClick={() => changeListingState(listing, 'live')}>
                               Approve
-                            </Button>
+                            </button>
                           ) : (
-                            <Button size="sm" variant="outline-secondary" onClick={() => changeListingState(listing, 'pending')}>
+                            <button type="button" className="ss-btn ss-btn--ghost ss-btn--sm" onClick={() => changeListingState(listing, 'pending')}>
                               Unpublish
-                            </Button>
+                            </button>
                           )
                         )}
-                        <Button size="sm" variant="outline-primary" onClick={() => openEditModal(listing)}>
+                        <button type="button" className="ss-btn ss-btn--ghost ss-btn--sm" onClick={() => openEditModal(listing)}>
                           Edit
-                        </Button>
-                        <Button size="sm" variant="outline-danger" onClick={() => setListingToDelete(listing)}>
+                        </button>
+                        <button type="button" className="ss-btn ss-btn--danger ss-btn--sm" onClick={() => setListingToDelete(listing)}>
                           Delete
-                        </Button>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -380,9 +351,11 @@ const CreateListing = ({ user, adminView = false }) => {
             </Table>
           )}
         </div>
-      </Container>
+      </main>
 
-      <Modal show={showFormModal} onHide={closeFormModal} centered size="lg">
+      <Footer />
+
+      <Modal show={showFormModal} onHide={closeFormModal} centered size="lg" contentClassName="ss-modal">
         <Form onSubmit={handleSave}>
           <Modal.Header closeButton={!saving}>
             <Modal.Title>{editingListing ? 'Edit listing' : 'Add product'}</Modal.Title>
@@ -391,20 +364,20 @@ const CreateListing = ({ user, adminView = false }) => {
             <Row className="g-3">
               <Col md={8}>
                 <Form.Group>
-                  <Form.Label>Product title</Form.Label>
-                  <Form.Control name="title" value={form.title} onChange={handleChange} required />
+                  <Form.Label className="ss-label">Product title</Form.Label>
+                  <Form.Control className="ss-input" name="title" value={form.title} onChange={handleChange} required />
                 </Form.Group>
               </Col>
               <Col md={4}>
                 <Form.Group>
-                  <Form.Label>Price</Form.Label>
-                  <Form.Control name="price" type="number" min="0" step="0.01" value={form.price} onChange={handleChange} required />
+                  <Form.Label className="ss-label">Price</Form.Label>
+                  <Form.Control className="ss-input" name="price" type="number" min="0" step="0.01" value={form.price} onChange={handleChange} required />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Category</Form.Label>
-                  <Form.Select name="category" value={form.category} onChange={handleChange} required>
+                  <Form.Label className="ss-label">Category</Form.Label>
+                  <Form.Select className="ss-input" name="category" value={form.category} onChange={handleChange} required>
                     {categories.map((category) => (
                       <option key={category} value={category}>
                         {category}
@@ -415,8 +388,8 @@ const CreateListing = ({ user, adminView = false }) => {
               </Col>
               <Col xs={12}>
                 <Form.Group>
-                  <Form.Label>Product image</Form.Label>
-                  <div className="listing-image-source">
+                  <Form.Label className="ss-label">Product image</Form.Label>
+                  <div className="d-flex gap-3 mb-2">
                     <Form.Check
                       inline
                       type="radio"
@@ -439,6 +412,7 @@ const CreateListing = ({ user, adminView = false }) => {
 
                   {imageInputMode === 'url' ? (
                     <Form.Control
+                      className="ss-input"
                       name="image"
                       type="url"
                       value={form.image}
@@ -447,18 +421,19 @@ const CreateListing = ({ user, adminView = false }) => {
                       required
                     />
                   ) : (
-                    <Form.Control type="file" accept="image/*" onChange={handleImageFileChange} required={!form.image} />
+                    <Form.Control className="ss-input" type="file" accept="image/*" onChange={handleImageFileChange} required={!form.image} />
                   )}
                 </Form.Group>
               </Col>
               {form.image && (
                 <Col xs={12}>
-                  <div className="listing-image-preview">
+                  <div className="ss-image-preview">
                     <img src={form.image} alt="Listing preview" />
                     <div>
                       <strong>{imageFileName || 'Image preview'}</strong>
                       <button
                         type="button"
+                        className="ss-link-btn"
                         onClick={() => {
                           setForm((current) => ({ ...current, image: '' }));
                           setImageFileName('');
@@ -472,8 +447,9 @@ const CreateListing = ({ user, adminView = false }) => {
               )}
               <Col xs={12}>
                 <Form.Group>
-                  <Form.Label>Description</Form.Label>
+                  <Form.Label className="ss-label">Description</Form.Label>
                   <Form.Control
+                    className="ss-input"
                     as="textarea"
                     rows={4}
                     name="description"
@@ -486,17 +462,17 @@ const CreateListing = ({ user, adminView = false }) => {
             </Row>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="outline-secondary" onClick={closeFormModal} disabled={saving}>
+            <button type="button" className="ss-btn ss-btn--ghost" onClick={closeFormModal} disabled={saving}>
               Cancel
-            </Button>
-            <Button className="listing-primary-btn" type="submit" disabled={saving}>
+            </button>
+            <button className="ss-btn ss-btn--primary" type="submit" disabled={saving}>
               {saving ? 'Saving...' : editingListing ? 'Save changes' : 'Create listing'}
-            </Button>
+            </button>
           </Modal.Footer>
         </Form>
       </Modal>
 
-      <Modal show={Boolean(listingToDelete)} onHide={() => !saving && setListingToDelete(null)} centered>
+      <Modal show={Boolean(listingToDelete)} onHide={() => !saving && setListingToDelete(null)} centered contentClassName="ss-modal">
         <Modal.Header closeButton={!saving}>
           <Modal.Title>Delete listing?</Modal.Title>
         </Modal.Header>
@@ -504,12 +480,12 @@ const CreateListing = ({ user, adminView = false }) => {
           This will remove <strong>{listingToDelete?.title}</strong> from the database.
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="outline-secondary" onClick={() => setListingToDelete(null)} disabled={saving}>
+          <button type="button" className="ss-btn ss-btn--ghost" onClick={() => setListingToDelete(null)} disabled={saving}>
             Cancel
-          </Button>
-          <Button variant="danger" onClick={handleDeleteListing} disabled={saving}>
+          </button>
+          <button type="button" className="ss-btn ss-btn--danger" onClick={handleDeleteListing} disabled={saving}>
             {saving ? 'Deleting...' : 'Delete listing'}
-          </Button>
+          </button>
         </Modal.Footer>
       </Modal>
     </div>

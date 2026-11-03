@@ -14,6 +14,7 @@ import SetupPage from './Pages/SetupPage';
 import TasksPage from './Pages/TasksPage';
 import Dashboard from './Pages/Dashboard';
 import CartDrawer from './Component/CartDrawer';
+import AnimatedBackground from './Component/AnimatedBackground';
 import { clearSession, getStoredUser } from './api/client';
 import { getMe } from './api/auth';
 import { CartProvider } from './context/CartContext';
@@ -104,8 +105,8 @@ function AuthFlow() {
       <Route path="/marketplace" element={<Marketplace user={user} onLogout={handleLogout} />} />
       <Route path="/product/:id" element={<ProductDetails user={user} onLogout={handleLogout} />} />
       <Route path="/cart" element={<Cart user={user} onLogout={handleLogout} />} />
-      <Route path="/createListing" element={<CreateListing user={user} />} />
-      <Route path="/listings" element={<CreateListing user={user} />} />
+      <Route path="/createListing" element={<CreateListing user={user} onLogout={handleLogout} />} />
+      <Route path="/listings" element={<CreateListing user={user} onLogout={handleLogout} />} />
       <Route path="/admin" element={<Navigate to="/admin/listings" replace />} />
       <Route
         path="/admin/listings"
@@ -123,6 +124,7 @@ function App() {
   return (
     <BrowserRouter>
       <CartProvider>
+        <AnimatedBackground />
         <AuthFlow />
         <CartDrawer />
       </CartProvider>

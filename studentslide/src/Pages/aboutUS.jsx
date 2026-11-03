@@ -5,141 +5,111 @@ import meImg from '../assets/Me.jpeg';
 import larImg from '../assets/lar.jpeg';
 import gedionImg from '../assets/Gedion.jpeg';
 import nkaniImg from '../assets/Nkani.jpeg';
-import "./aboutUS.css";
 
+// Accent colours come from the shared palette (purple / teal / cream / lavender)
 const teamMembers = [
   {
     name: "Gabriel",
     role: "Developer",
     about: "Backend and database contributor supporting the core StudentSlide data flow.",
-    initials: "G",
     image: meImg,
-    accentColor: "#a78bfa",
-    gradientStart: "#c084fc",
-    gradientEnd: "#7c3aed",
-    bgTint: "#1e1728",
+    accent: "#7c5cbf",
   },
   {
     name: "Larissa",
     role: "Developer",
     about: "Authentication and user-flow contributor focused on the creative login experience.",
-    initials: "L",
     image: larImg,
-    accentColor: "#ec4899",
-    gradientStart: "#f9a8d4",
-    gradientEnd: "#db2777",
-    bgTint: "#1f1320",
+    accent: "#4ecdc4",
   },
   {
     name: "Gedeon",
     role: "Developer",
     about: "Full-stack integration contributor for listings, admin moderation, marketplace, and merge planning.",
-    initials: "G",
     image: gedionImg,
-    accentColor: "#34d399",
-    gradientStart: "#6ee7b7",
-    gradientEnd: "#059669",
-    bgTint: "#0f1f1a",
+    accent: "#f5deb3",
   },
   {
     name: "Nkanyiso",
     role: "Developer",
     about: "Marketplace and cart contributor helping shape the buyer-side experience.",
-    initials: "N",
     image: nkaniImg,
-    accentColor: "#fbbf24",
-    gradientStart: "#fcd34d",
-    gradientEnd: "#d97706",
-    bgTint: "#1f1a0d",
+    accent: "#a78bfa",
   },
 ];
 
 export default function AboutUs({ user, onLogout }) {
   return (
-    <div className="aboutPage">
+    <div className="ss-page">
       <Navbar isLoggedIn={Boolean(user)} user={user} onLogout={onLogout} />
 
-      {/* Hero */}
-      <section className="aboutHero">
-        <p className="aboutEyebrow">WHO WE ARE</p>
-        <h1 className="aboutHeroHeading">
-          Built by students,<br />
-          <span className="aboutHeroAccent">for students.</span>
-        </h1>
-        <p className="aboutHeroSubtext">
-          StudentSlide was created to make campus life easier - a place where
-          students can buy, sell, and trade everything from textbooks to bicycles.
-        </p>
-        <Link to="/marketplace" className="aboutButton">
-          Explore Marketplace
-        </Link>
-      </section>
+      <main style={{ flex: 1 }}>
+        {/* Hero */}
+        <section className="ss-hero">
+          <p className="ss-eyebrow">Who we are</p>
+          <h1>
+            Built by students,<br />
+            <span className="ss-gradient-text">for students.</span>
+          </h1>
+          <p className="lead">
+            StudentSlide was created to make campus life easier - a place where
+            students can buy, sell, and trade everything from textbooks to bicycles.
+          </p>
+          <Link to="/marketplace" className="ss-btn ss-btn--primary">
+            Explore Marketplace
+          </Link>
+        </section>
 
-      {/* About StudentSlide */}
-      <section className="aboutSection">
-        <div className="aboutCard">
-          <div className="aboutCardLeft">
-            <p className="aboutCardEyebrow">THE PLATFORM</p>
-            <h2 className="aboutCardHeading">What is StudentSlide?</h2>
-          </div>
-          <div className="aboutCardRight">
-            <p className="aboutCardText">
-              StudentSlide is a student-to-student marketplace designed to make
-              campus life more affordable and connected. Whether you need a
-              second-hand textbook, want to sell your old laptop, or trade your
-              bicycle - StudentSlide is your campus hub.
-            </p>
-            <p className="aboutCardText">
-              With built-in messaging, category filtering, and a trusted
-              community of verified students, we make peer-to-peer trading
-              simple, safe, and social.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Team */}
-      <section className="aboutTeamSection">
-        <p className="aboutEyebrow">THE TEAM</p>
-        <h2 className="aboutTeamHeading">Meet the people behind it</h2>
-
-        <div className="aboutTeamGrid">
-          {teamMembers.map((member, index) => (
-            <div
-              key={index}
-              className="aboutTeamCard"
-              style={{ borderTopColor: member.accentColor }}
-            >
-              {/* Photo area */}
-              <div
-                className="aboutTeamPhotoWrap"
-                style={{ background: member.bgTint }}
-              >
-                <div className="aboutTeamAvatar" style={{
-                   background: member.image ? 'none' : `radial-gradient(circle at 40% 40%, ${member.gradientStart}, ${member.gradientEnd})`,
-                }}>
-                  {member.image
-                    ? <img src={member.image} alt={member.name} style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
-                    : member.initials
-                  }
-              </div>
-              </div>
-
-              {/* Info */}
-              <div className="aboutTeamInfo">
-                <h3
-                  className="aboutTeamName"
-                  style={{ color: "#fbbf24" }}
-                >
-                  {member.name}
-                </h3>
-                <p className="aboutTeamRole">{member.role}</p>
-                <p className="aboutTeamAbout">{member.about}</p>
-              </div>
+        {/* About StudentSlide */}
+        <section className="ss-section">
+          <div className="ss-card ss-split">
+            <div className="ss-split-left">
+              <p className="ss-eyebrow">The platform</p>
+              <h2>What is StudentSlide?</h2>
             </div>
-          ))}
-        </div>
-      </section>
+            <div className="ss-split-right">
+              <p>
+                StudentSlide is a student-to-student marketplace designed to make
+                campus life more affordable and connected. Whether you need a
+                second-hand textbook, want to sell your old laptop, or trade your
+                bicycle - StudentSlide is your campus hub.
+              </p>
+              <p>
+                With built-in messaging, category filtering, and a trusted
+                community of verified students, we make peer-to-peer trading
+                simple, safe, and social.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Team */}
+        <section className="ss-team">
+          <p className="ss-eyebrow">The team</p>
+          <h2>Meet the people behind it</h2>
+
+          <div className="ss-team-grid">
+            {teamMembers.map((member) => (
+              <div
+                key={member.name}
+                className="ss-card ss-card--hover ss-member"
+                style={{ "--member": member.accent }}
+              >
+                <div className="ss-member-photo">
+                  <div className="ss-member-avatar">
+                    <img src={member.image} alt={member.name} />
+                  </div>
+                </div>
+                <div className="ss-member-info">
+                  <h3>{member.name}</h3>
+                  <p className="ss-member-role">{member.role}</p>
+                  <p className="ss-member-about">{member.about}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
 
       <Footer />
     </div>

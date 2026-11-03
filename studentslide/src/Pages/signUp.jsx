@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Alert, Button, Col, Container, Form, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import logo from '../assets/StudentSlide_Logo_Full.png';
+import AuthLayout from '../Component/AuthLayout';
 
 const API_URL = 'http://localhost:5000/api';
 
@@ -86,72 +85,53 @@ const SignUp = () => {
   };
 
   return (
-    <div className="auth-background">
-      <Container fluid className="d-flex flex-column align-items-center justify-content-center min-vh-100">
-        <div className="mb-4 text-center">
-          <img src={logo} alt="Student Slide Logo" className="auth-logo" />
+    <AuthLayout>
+      {error && <div className="ss-alert ss-alert--error">{error}</div>}
+
+      <form onSubmit={handleSubmit} className="ss-form">
+        <div className="ss-form-row">
+          <div>
+            <label className="ss-label">Student Name</label>
+            <input className="ss-input" type="text" name="name" placeholder="Please enter name" value={form.name} onChange={handleChange} />
+          </div>
+          <div>
+            <label className="ss-label">Student Surname</label>
+            <input className="ss-input" type="text" name="surname" placeholder="Please enter surname" value={form.surname} onChange={handleChange} />
+          </div>
         </div>
 
-        <div className="auth-card w-100">
-          <h5 className="text-center text-white mb-1">Welcome to</h5>
-          <h2 className="text-center auth-title mb-4">Student Slide!</h2>
-
-          {error && <Alert variant="danger">{error}</Alert>}
-
-          <Form onSubmit={handleSubmit}>
-            <Row>
-              <Col xs={12} md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label className="auth-label">Student Name</Form.Label>
-                  <Form.Control className="auth-input" type="text" name="name" placeholder="Please enter name" value={form.name} onChange={handleChange} />
-                </Form.Group>
-              </Col>
-              <Col xs={12} md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label className="auth-label">Student Surname</Form.Label>
-                  <Form.Control className="auth-input" type="text" name="surname" placeholder="Please enter surname" value={form.surname} onChange={handleChange} />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <Form.Group className="mb-3">
-              <Form.Label className="auth-label">Student Number</Form.Label>
-              <Form.Control className="auth-input" type="text" name="studentNum" placeholder="Please enter student number" value={form.studentNum} onChange={handleChange} />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label className="auth-label">Student Email</Form.Label>
-              <Form.Control className="auth-input" type="email" name="email" placeholder="Please enter email" value={form.email} onChange={handleChange} />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label className="auth-label">Password</Form.Label>
-              <Form.Control className="auth-input" type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} />
-            </Form.Group>
-
-            <Form.Group className="mb-4">
-              <Form.Label className="auth-label">Confirm Password</Form.Label>
-              <Form.Control className="auth-input" type="password" name="confirmPassword" placeholder="Confirm password" value={form.confirmPassword} onChange={handleChange} />
-            </Form.Group>
-
-            <Button className="auth-btn w-100 mb-3" type="submit" disabled={saving}>
-              {saving ? 'Creating account...' : 'Sign Up'}
-            </Button>
-
-            <div className="auth-divider mb-3">
-              <span>OR</span>
-            </div>
-
-            <p className="text-center text-white mb-0">
-              Already have an account?{' '}
-              <span className="auth-link" onClick={() => navigate('/signin')}>
-                Sign In
-              </span>
-            </p>
-          </Form>
+        <div>
+          <label className="ss-label">Student Number</label>
+          <input className="ss-input" type="text" name="studentNum" placeholder="Please enter student number" value={form.studentNum} onChange={handleChange} />
         </div>
-      </Container>
-    </div>
+
+        <div>
+          <label className="ss-label">Student Email</label>
+          <input className="ss-input" type="email" name="email" placeholder="Please enter email" value={form.email} onChange={handleChange} />
+        </div>
+
+        <div>
+          <label className="ss-label">Password</label>
+          <input className="ss-input" type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} />
+        </div>
+
+        <div>
+          <label className="ss-label">Confirm Password</label>
+          <input className="ss-input" type="password" name="confirmPassword" placeholder="Confirm password" value={form.confirmPassword} onChange={handleChange} />
+        </div>
+
+        <button className="ss-btn ss-btn--primary ss-btn--block" type="submit" disabled={saving}>
+          {saving ? 'Creating account...' : 'Sign Up'}
+        </button>
+
+        <div className="ss-divider">OR</div>
+
+        <p className="ss-switch">
+          Already have an account?{' '}
+          <button type="button" onClick={() => navigate('/signin')}>Sign In</button>
+        </p>
+      </form>
+    </AuthLayout>
   );
 };
 
