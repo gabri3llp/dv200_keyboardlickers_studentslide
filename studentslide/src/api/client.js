@@ -1,4 +1,4 @@
-export const API_URL = 'http://localhost:5000/api';
+export const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
 
 const TOKEN_KEY = 'studentslide_token';
 const USER_KEY = 'studentslide_user';
@@ -26,12 +26,10 @@ export const clearSession = () => {
 
 export const authHeaders = (headers = {}) => {
   const token = getAuthToken();
-  const user = getStoredUser();
 
   return {
     ...headers,
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(user?.role ? { 'x-user-role': user.role } : {}),
   };
 };
 
@@ -43,7 +41,9 @@ export async function apiRequest(path, options = {}) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data.error || data.message || 'Request failed');
+    const error = new Error(data.error || data.message || 'Request failed');
+    error.status = response.status;
+    throw error;
   }
 
   return data;

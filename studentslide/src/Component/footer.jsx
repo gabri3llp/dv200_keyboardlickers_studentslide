@@ -56,7 +56,7 @@ const Footer = () => {
             <li><Link to="/signin" className="footer__link">Sign in</Link></li>
             <li><Link to="/signup" className="footer__link">Sign up</Link></li>
             <li><Link to="/profile" className="footer__link">My profile</Link></li>
-            <li><Link to="/listings" className="footer__link">My listings</Link></li>
+            <li><Link to="/my-listings" className="footer__link">My listings</Link></li>
           </ul>
         </div>
 

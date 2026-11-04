@@ -3,9 +3,15 @@ const router = express.Router();
 const Student = require('../Model/students');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { authenticate, requireRoles, JWT_SECRET } = require('../Middleware/auth');
 
 const validRoles = ['normal', 'moderator', 'admin'];
-const JWT_SECRET = process.env.JWT_SECRET || 'studentslide-dev-secret';
+
+const hasCreativeCredentials = ({ username, color, sequence }) =>
+  typeof username === 'string' && Boolean(username.trim()) &&
+  typeof color === 'string' && Boolean(color.trim()) &&
+  Array.isArray(sequence) && sequence.length > 0 &&
+  sequence.every((task) => typeof task === 'string' && task.trim());
 
 const safeStudent = (student) => ({
   _id: student._id,
@@ -18,34 +24,6 @@ const safeStudent = (student) => ({
   createdAt: student.createdAt,
   updatedAt: student.updatedAt,
 });
-
-const getBearerToken = (req) => {
-  const header = req.header('authorization') || '';
-  return header.startsWith('Bearer ') ? header.slice(7) : '';
-};
-
-const authenticate = async (req, res, next) => {
-  try {
-    const token = getBearerToken(req);
-    if (!token) return res.status(401).json({ error: 'Authentication required' });
-
-    const payload = jwt.verify(token, JWT_SECRET);
-    const student = await Student.findById(payload.id);
-    if (!student) return res.status(401).json({ error: 'User not found' });
-
-    req.user = student;
-    next();
-  } catch {
-    res.status(401).json({ error: 'Invalid or expired token' });
-  }
-};
-
-const requireAdmin = (req, res, next) => {
-  if (req.user?.role !== 'admin' && req.header('x-user-role') !== 'admin') {
-    return res.status(403).json({ error: 'Admin access required' });
-  }
-  next();
-};
 
 // GET all students
 router.get('/', async (req, res) => {
@@ -60,8 +38,16 @@ router.get('/', async (req, res) => {
 // POST create a student (basic)
 router.post('/', async (req, res) => {
   try {
-    const student = await Student.create(req.body);
-    res.status(201).json(student);
+    const { name, surname, email, studentNum, password } = req.body;
+    if (typeof password !== 'string' || !password) {
+      return res.status(400).json({ error: 'Password is required' });
+    }
+    const student = await Student.create({
+      name, surname, email, studentNum,
+      password: await bcrypt.hash(password, 10),
+      role: 'normal',
+    });
+    res.status(201).json(safeStudent(student));
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -71,6 +57,9 @@ router.post('/', async (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     const { username, color, sequence, name, surname } = req.body;
+    if (!hasCreativeCredentials(req.body)) {
+      return res.status(400).json({ ok: false, message: 'Choose a colour and complete your task sequence.' });
+    }
 
     const existing = await Student.findOne({ email: username });
     if (existing) return res.status(400).json({ ok: false, message: 'User already exists' });
@@ -104,6 +93,9 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { username, color, sequence } = req.body;
+    if (!hasCreativeCredentials(req.body)) {
+      return res.status(400).json({ ok: false, message: 'Choose a colour and complete your task sequence.' });
+    }
 
     const student = await Student.findOne({ email: username });
     if (!student) return res.status(404).json({ ok: false, message: 'User not found' });
@@ -134,7 +126,7 @@ router.get('/me', authenticate, async (req, res) => {
   res.json({ user: safeStudent(req.user) });
 });
 
-router.patch('/:id/role', authenticate, requireAdmin, async (req, res) => {
+router.patch('/:id/role', authenticate, requireRoles('admin'), async (req, res) => {
   try {
     if (!validRoles.includes(req.body.role)) {
       return res.status(400).json({ error: 'Role must be normal, moderator, or admin' });

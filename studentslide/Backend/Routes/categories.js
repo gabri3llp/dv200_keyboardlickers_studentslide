@@ -1,14 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Category = require('../Model/categories');
-
-const requireAdmin = (req, res, next) => {
-  if (req.header('x-user-role') !== 'admin') {
-    return res.status(403).json({ error: 'Admin access required' });
-  }
-
-  next();
-};
+const { authenticate, requireRoles } = require('../Middleware/auth');
 
 const makeSlug = (name) =>
   name
@@ -28,7 +21,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST create a category
-router.post('/', requireAdmin, async (req, res) => {
+router.post('/', authenticate, requireRoles('admin'), async (req, res) => {
   try {
     const name = req.body.name?.trim();
 

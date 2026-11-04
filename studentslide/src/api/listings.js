@@ -6,6 +6,8 @@ export const getListings = (state) => {
 };
 
 export const getListing = (id) => apiRequest(`/listings/${id}`);
+export const getMyListings = () => apiRequest('/listings/mine');
+export const getReviewListings = () => apiRequest('/listings/review');
 
 export const createListing = (listing) =>
   apiRequest('/listings', {
@@ -21,14 +23,14 @@ export const updateListing = (id, listing) =>
     body: JSON.stringify(listing),
   });
 
-export const updateListingState = (id, listingState) =>
+export const updateListingState = (id, listingState, expectedVersion) =>
   apiRequest(`/listings/${id}/state`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ listingState }),
+    body: JSON.stringify({ listingState, expectedVersion }),
   });
 
-export const deleteListing = (id) =>
-  apiRequest(`/listings/${id}`, {
+export const deleteListing = (id, expectedVersion) =>
+  apiRequest(`/listings/${id}?expectedVersion=${encodeURIComponent(expectedVersion)}`, {
     method: 'DELETE',
   });

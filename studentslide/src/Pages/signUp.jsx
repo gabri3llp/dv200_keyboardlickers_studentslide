@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '../Component/AuthLayout';
-
-const API_URL = 'http://localhost:5000/api';
+import { API_URL } from '../api/client';
 
 const initialForm = {
   name: '',

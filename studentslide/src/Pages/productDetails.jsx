@@ -127,6 +127,7 @@ const ProductDetails = ({ user, onLogout }) => {
       </nav>
 
       <Container className="pd-container">
+        <div className="ss-alert" role="note">Trades and comments here are local demonstrations. Trade requests are not sent to sellers.</div>
         <button className="pd-back-btn" onClick={() => navigate('/marketplace')}>
           Back to Marketplace
         </button>

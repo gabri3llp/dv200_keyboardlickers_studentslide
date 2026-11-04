@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/StudentSlide_Logo_Full.png";
 import { useCart } from "../context/CartContext";
+import './navbar.css';
 
 const Navbar = ({ isLoggedIn = false, user = null, onLogout }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -14,7 +15,7 @@ const Navbar = ({ isLoggedIn = false, user = null, onLogout }) => {
   const isSellActive = isActive('/listings') || isActive('/createListing');
 
   return (
-    <nav className="mp-nav">
+    <nav className="mp-nav ss-nav" aria-label="Main navigation">
       <Link to="/marketplace">
         <img src={logo} alt="StudentSlide" className="mp-nav-logo" />
       </Link>
@@ -22,13 +23,14 @@ const Navbar = ({ isLoggedIn = false, user = null, onLogout }) => {
       <div className="mp-nav-links">
         <Link to="/marketplace" className={`mp-nav-link ${isActive('/marketplace') ? 'active' : ''}`}>MARKETPLACE</Link>
         <Link to="/listings" className={`mp-nav-link ${isSellActive ? 'active' : ''}`}>SELL</Link>
-        {canManageListings && <Link to="/admin/listings" className="mp-nav-link">ADMIN</Link>}
+        {isLoggedIn && <Link to="/my-listings" className={`mp-nav-link ${isActive('/my-listings') ? 'active' : ''}`}>MY LISTINGS</Link>}
+        {canManageListings && <Link to="/admin/listings" className={`mp-nav-link ${isActive('/admin/listings') ? 'active' : ''}`}>ADMIN</Link>}
         <Link to="/messages" className={`mp-nav-link ${isActive('/messages') ? 'active' : ''}`}>MESSAGES</Link>
         <Link to="/aboutus" className={`mp-nav-link ${isActive('/aboutus') ? 'active' : ''}`}>ABOUT US</Link>
       </div>
 
       <div className="mp-nav-right">
-        <div className="mp-avatar" />
+        {user && <span className="mp-avatar" title={user.name || 'Your account'}>{(user.name || 'S').slice(0, 1).toUpperCase()}</span>}
         <button className="mp-cart-nav-btn" onClick={() => setDrawerOpen(true)} type="button">
           CART ({cartCount})
         </button>
@@ -44,6 +46,8 @@ const Navbar = ({ isLoggedIn = false, user = null, onLogout }) => {
         className={`navbar__hamburger ${menuOpen ? "navbar__hamburger--open" : ""}`}
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label="Toggle menu"
+        aria-expanded={menuOpen}
+        aria-controls="ss-mobile-navigation"
       >
         <span />
         <span />
@@ -52,9 +56,10 @@ const Navbar = ({ isLoggedIn = false, user = null, onLogout }) => {
 
      
       {menuOpen && (
-        <div className="navbar__mobile-menu">
+        <div className="navbar__mobile-menu" id="ss-mobile-navigation">
           <Link to="/marketplace" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>Marketplace</Link>
           <Link to="/listings" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>Sell</Link>
+          {isLoggedIn && <Link to="/my-listings" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>My Listings</Link>}
           <Link to="/messages" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>Messages</Link>
           <Link to="/aboutus" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>About Us</Link>
           {canManageListings && <Link to="/admin/listings" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>Admin</Link>}

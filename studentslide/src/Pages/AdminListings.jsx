@@ -1,110 +1,49 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
-import { deleteListing, getListings, updateListingState } from '../api/listings';
-import logo from '../assets/StudentSlide_Logo_Full.png';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Modal, Spinner } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { deleteListing, getReviewListings, updateListingState } from '../api/listings';
+import Navbar from '../Component/navbar';
 import Footer from '../Component/footer';
 import './AdminListings.css';
 
-const formatPrice = (value) => `R ${Number(value || 0).toFixed(2)}`;
-
+const formatPrice = (value) => new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(Number(value) || 0);
 const formatDate = (value) => {
-  if (!value) return 'Recently';
-
-  return new Date(value).toLocaleDateString('en-ZA', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
+  if (!value || Number.isNaN(new Date(value).getTime())) return 'Date unavailable';
+  return new Date(value).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
 };
 
-const getUserLabel = (user) =>
-  [user?.name, user?.surname].filter(Boolean).join(' ') || user?.email || 'Moderator';
-
-function AdminStat({ label, value, tone = 'neutral' }) {
+function ReviewImage({ src, title }) {
+  const [failed, setFailed] = useState(false);
   return (
-    <article className={`admin-stat admin-stat--${tone}`}>
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </article>
-  );
-}
-
-function AdminToast({ toast }) {
-  if (!toast) return null;
-
-  return (
-    <div className={`admin-toast admin-toast--${toast.type}`}>
-      {toast.message}
+    <div className="admin-review-card__image">
+      {src && !failed ? <img src={src} alt={title} onError={() => setFailed(true)} loading="lazy" /> : <span role="img" aria-label={`Image unavailable for ${title}`}>Image unavailable</span>}
     </div>
   );
 }
 
-function ListingReviewCard({ listing, working, onApprove, onUnpublish, onDelete }) {
-  const isLive = listing.listingState === 'live';
-
+function ListingReviewCard({ listing, disabled, working, onStateChange, onDelete }) {
+  const live = listing.listingState === 'live';
   return (
-    <article className="admin-review-card">
-      <div className="admin-review-card__image">
-        {listing.image ? (
-          <img
-            src={listing.image}
-            alt={listing.title}
-            onError={(event) => {
-              event.currentTarget.style.display = 'none';
-            }}
-          />
-        ) : (
-          <span>No image</span>
-        )}
-      </div>
-
+    <article className="ss-card admin-review-card" aria-busy={working}>
+      <ReviewImage key={listing.image} src={listing.image} title={listing.title} />
       <div className="admin-review-card__body">
-        <div className="admin-review-card__topline">
-          <span className={`admin-status admin-status--${listing.listingState}`}>
-            {listing.listingState}
-          </span>
-          <span className="admin-review-card__category">{listing.category}</span>
-          <span className="admin-review-card__date">{formatDate(listing.createdAt)}</span>
+        <div className="admin-review-card__meta">
+          <span className={`ss-badge ss-badge--${live ? 'live' : 'pending'}`}>{live ? 'Live' : 'Pending review'}</span>
+          <span>{listing.category}</span>
+          <span>{formatDate(listing.createdAt)}</span>
         </div>
-
         <h2>{listing.title}</h2>
         <p>{listing.description}</p>
-
-        <div className="admin-review-card__meta">
+        <div className="admin-review-card__meta admin-review-card__seller">
           <strong>{formatPrice(listing.price)}</strong>
-          <span>Listed by {listing.sellerName || 'Student seller'}</span>
+          <span>Listed by {listing.sellerName || 'Seller not recorded (older listing)'}</span>
         </div>
       </div>
-
       <div className="admin-review-card__actions">
-        {isLive ? (
-          <button
-            type="button"
-            className="admin-action admin-action--secondary"
-            disabled={working}
-            onClick={() => onUnpublish(listing)}
-          >
-            Unpublish
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="admin-action admin-action--approve"
-            disabled={working}
-            onClick={() => onApprove(listing)}
-          >
-            Approve
-          </button>
-        )}
-
-        <button
-          type="button"
-          className="admin-action admin-action--danger"
-          disabled={working}
-          onClick={() => onDelete(listing)}
-        >
-          {isLive ? 'Remove' : 'Reject'}
+        <button type="button" className={`ss-btn ss-btn--sm ${live ? 'ss-btn--ghost' : 'ss-btn--primary'}`} disabled={disabled} onClick={() => onStateChange(listing, live ? 'pending' : 'live')}>
+          {working ? 'Updating...' : live ? 'Unpublish' : 'Approve'}
         </button>
+        <button type="button" className="ss-btn ss-btn--danger ss-btn--sm" disabled={disabled} onClick={() => onDelete(listing)}>{live ? 'Remove' : 'Reject'}</button>
       </div>
     </article>
   );
@@ -112,276 +51,198 @@ function ListingReviewCard({ listing, working, onApprove, onUnpublish, onDelete 
 
 export default function AdminListings({ user, onLogout }) {
   const canModerate = user?.role === 'admin' || user?.role === 'moderator';
+  const userId = user?._id;
   const [listings, setListings] = useState([]);
   const [activeTab, setActiveTab] = useState('pending');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [workingId, setWorkingId] = useState('');
-  const [error, setError] = useState('');
-  const [toast, setToast] = useState(null);
+  const [loadError, setLoadError] = useState('');
+  const [actionError, setActionError] = useState('');
+  const [accessError, setAccessError] = useState(null);
+  const [notice, setNotice] = useState('');
   const [lastUpdated, setLastUpdated] = useState('');
-
-  const pendingListings = useMemo(
-    () => listings.filter((listing) => listing.listingState === 'pending'),
-    [listings]
-  );
-
-  const liveListings = useMemo(
-    () => listings.filter((listing) => listing.listingState === 'live'),
-    [listings]
-  );
-
-  const activeListings = activeTab === 'pending' ? pendingListings : liveListings;
-
-  const visibleListings = useMemo(() => {
-    const query = searchTerm.trim().toLowerCase();
-    if (!query) return activeListings;
-
-    return activeListings.filter((listing) =>
-      [listing.title, listing.category, listing.description, listing.sellerName]
-        .filter(Boolean)
-        .some((value) => value.toLowerCase().includes(query))
-    );
-  }, [activeListings, searchTerm]);
-
-  const showToast = (message, type = 'success') => {
-    setToast({ message, type });
-    window.setTimeout(() => setToast(null), 2600);
-  };
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const requestId = useRef(0);
+  const busy = useRef(false);
 
   const loadListings = async () => {
-    if (!canModerate) return;
-
+    if (!canModerate || !userId) return;
+    const currentRequest = ++requestId.current;
     setLoading(true);
-    setError('');
-
+    setLoadError('');
     try {
-      const data = await getListings();
+      const data = await getReviewListings();
+      if (!Array.isArray(data)) throw new Error('The review queue returned an unexpected response.');
+      if (currentRequest !== requestId.current) return;
       setListings(data);
-      setLastUpdated(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      setAccessError(null);
+      setLastUpdated(new Date().toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' }));
     } catch (err) {
-      setError(err.message);
+      if (currentRequest !== requestId.current) return;
+      if (err.status === 401 || err.status === 403) setAccessError(err.status);
+      else setLoadError('Could not load the review queue. Check your connection and try again.');
     } finally {
-      setLoading(false);
+      if (currentRequest === requestId.current) setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!canModerate) return undefined;
+    if (!canModerate || !userId) return;
+    const currentRequest = ++requestId.current;
+    getReviewListings().then((data) => {
+      if (!Array.isArray(data)) throw new Error('Unexpected review queue response');
+      if (currentRequest !== requestId.current) return;
+      setListings(data);
+      setAccessError(null);
+      setLastUpdated(new Date().toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' }));
+    }).catch((err) => {
+      if (currentRequest !== requestId.current) return;
+      if (err.status === 401 || err.status === 403) setAccessError(err.status);
+      else setLoadError('Could not load the review queue. Check your connection and try again.');
+    }).finally(() => {
+      if (currentRequest === requestId.current) setLoading(false);
+    });
+    return () => { requestId.current += 1; };
+  }, [canModerate, userId]);
 
-    let isMounted = true;
+  const counts = useMemo(() => ({
+    pending: listings.filter((listing) => listing.listingState === 'pending').length,
+    live: listings.filter((listing) => listing.listingState === 'live').length,
+  }), [listings]);
+  const stateListings = listings.filter((listing) => listing.listingState === activeTab);
+  const query = searchTerm.trim().toLowerCase();
+  const visibleListings = stateListings.filter((listing) => !query ||
+    [listing.title, listing.category, listing.description, listing.sellerName].filter(Boolean)
+      .some((value) => value.toLowerCase().includes(query)));
 
-    getListings()
-      .then((data) => {
-        if (!isMounted) return;
-        setListings(data);
-        setLastUpdated(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-      })
-      .catch((err) => {
-        if (isMounted) {
-          setError(err.message);
-        }
-      })
-      .finally(() => {
-        if (isMounted) {
-          setLoading(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [canModerate]);
-
-  const updateLocalListing = (id, listingState) => {
-    setListings((current) =>
-      current.map((listing) =>
-        listing._id === id ? { ...listing, listingState } : listing
-      )
-    );
+  const handleActionError = async (err) => {
+    if (err.status === 401 || err.status === 403) {
+      setAccessError(err.status);
+      setDeleteTarget(null);
+    } else {
+      setActionError(err.status ? err.message : 'Could not complete the action. Check your connection and try again.');
+      if (err.status === 404 || err.status === 409) {
+        setDeleteTarget(null);
+        await loadListings();
+      }
+    }
   };
 
   const handleStateChange = async (listing, listingState) => {
+    if (busy.current || loading) return;
+    busy.current = true;
     setWorkingId(listing._id);
-    setError('');
-
+    setActionError('');
+    setNotice('');
     try {
-      await updateListingState(listing._id, listingState);
-      updateLocalListing(listing._id, listingState);
-      showToast(
-        listingState === 'live'
-          ? `${listing.title} is now live on the marketplace.`
-          : `${listing.title} has been moved back to pending.`,
-        'success'
-      );
+      const updated = await updateListingState(listing._id, listingState, listing.__v ?? 0);
+      setListings((current) => current.map((item) => item._id === updated._id ? updated : item));
+      setNotice(`${listing.title} ${listingState === 'live' ? 'is now live on the marketplace.' : 'has been unpublished and returned to pending review.'}`);
     } catch (err) {
-      setError(err.message);
+      await handleActionError(err);
     } finally {
+      busy.current = false;
       setWorkingId('');
     }
   };
 
-  const handleDelete = async (listing) => {
-    const action = listing.listingState === 'live' ? 'remove' : 'reject';
-    const confirmed = window.confirm(`Are you sure you want to ${action} "${listing.title}"?`);
-    if (!confirmed) return;
-
-    setWorkingId(listing._id);
-    setError('');
-
+  const handleDelete = async () => {
+    if (!deleteTarget || busy.current) return;
+    busy.current = true;
+    setWorkingId(deleteTarget._id);
+    setActionError('');
+    setNotice('');
     try {
-      await deleteListing(listing._id);
-      setListings((current) => current.filter((item) => item._id !== listing._id));
-      showToast(
-        listing.listingState === 'live'
-          ? 'Live listing removed.'
-          : 'Pending listing rejected.',
-        'danger'
-      );
+      await deleteListing(deleteTarget._id, deleteTarget.__v ?? 0);
+      setListings((current) => current.filter((item) => item._id !== deleteTarget._id));
+      setNotice(`${deleteTarget.title} was deleted.`);
+      setDeleteTarget(null);
     } catch (err) {
-      setError(err.message);
+      await handleActionError(err);
     } finally {
+      busy.current = false;
       setWorkingId('');
     }
   };
 
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  if (!canModerate) {
+  if (!user || !canModerate || accessError) {
+    const needsSignIn = !user || accessError === 401;
     return (
-      <div className="admin-listings-page">
-        <main className="admin-access-denied">
-          <p className="admin-review-kicker">Admin access required</p>
-          <h1>This route is for admins and moderators.</h1>
-          <p>
-            You are signed in as a {user.role || 'normal'} user. Ask an admin to update
-            your role to admin or moderator, then sign in again.
-          </p>
-          <Link to="/marketplace">Back to Marketplace</Link>
+      <div className="ss-page ss-admin-page">
+        <Navbar isLoggedIn={Boolean(user)} user={user} onLogout={onLogout} />
+        <main className="ss-main">
+          <div className="ss-card ss-state">
+            <p className="ss-eyebrow">StudentSlide moderation</p>
+            <h1 className="ss-title">{needsSignIn ? 'Sign in to review listings' : 'Moderator access required'}</h1>
+            <p>{needsSignIn ? 'Use your admin or moderator account to open the review queue.' : 'Your account does not currently have permission to moderate listings.'}</p>
+            <Link to={needsSignIn ? '/auth' : '/marketplace'} className="ss-btn ss-btn--primary">{needsSignIn ? 'Sign in' : 'Back to Marketplace'}</Link>
+          </div>
         </main>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="admin-listings-page">
-      <nav className="mp-nav admin-review-nav">
-        <Link to="/marketplace">
-          <img src={logo} alt="StudentSlide" className="mp-nav-logo" />
-        </Link>
-        <div className="mp-nav-links">
-          <Link to="/marketplace" className="mp-nav-link">MARKETPLACE</Link>
-          <Link to="/listings" className="mp-nav-link">SELL</Link>
-          <Link to="/admin/listings" className="mp-nav-link active">ADMIN</Link>
-          <Link to="/messages" className="mp-nav-link">MESSAGES</Link>
-          <Link to="/aboutus" className="mp-nav-link">ABOUT US</Link>
-        </div>
-        <div className="mp-nav-right">
-          <span className="admin-review-nav__role">{user.role}</span>
-          <button className="mp-logout-btn" type="button" onClick={onLogout}>
-            LOG OUT
-          </button>
-        </div>
-      </nav>
-
-      <main className="admin-review-shell">
-        <section className="admin-review-hero">
+    <div className="ss-page ss-admin-page">
+      <Navbar isLoggedIn user={user} onLogout={onLogout} />
+      <main className="ss-main">
+        <div className="ss-toolbar">
           <div>
-            <p className="admin-review-kicker">StudentSlide moderation</p>
-            <h1>Listing Review Queue</h1>
-            <p>
-              Review products before they reach buyers. Approving a listing changes its
-              database state from pending to live.
-            </p>
+            <p className="ss-eyebrow">StudentSlide moderation</p>
+            <h1 className="ss-title">Listing <span className="ss-gradient-text">Review Queue</span></h1>
+            <p className="ss-subtitle">Review student submissions before they appear on the marketplace. Edited listings need approval again.</p>
           </div>
+          <div className="ss-card admin-review-profile"><span>Reviewing as {user.role}</span><strong>{[user.name, user.surname].filter(Boolean).join(' ') || 'Moderator'}</strong></div>
+        </div>
 
-          <div className="admin-review-profile">
-            <span>Signed in as</span>
-            <strong>{getUserLabel(user)}</strong>
-            <small>{user.email}</small>
-          </div>
+        <section className="ss-stats" aria-label="Listing moderation statistics">
+          {[['Pending review', counts.pending], ['Live marketplace', counts.live], ['Total listings', listings.length]].map(([label, count]) => (
+            <article className="ss-card ss-stat" key={label}><span>{label}</span><strong>{loading || loadError ? '—' : count}</strong></article>
+          ))}
         </section>
 
-        <section className="admin-stats-grid" aria-label="Listing moderation stats">
-          <AdminStat label="Pending review" value={pendingListings.length} tone="pending" />
-          <AdminStat label="Live marketplace" value={liveListings.length} tone="live" />
-          <AdminStat label="Total listings" value={listings.length} />
-        </section>
-
-        <section className="admin-review-toolbar">
-          <div className="admin-review-tabs" role="tablist" aria-label="Listing state filters">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === 'pending'}
-              className={activeTab === 'pending' ? 'active' : ''}
-              onClick={() => setActiveTab('pending')}
-            >
-              Pending
-              <span>{pendingListings.length}</span>
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === 'live'}
-              className={activeTab === 'live' ? 'active' : ''}
-              onClick={() => setActiveTab('live')}
-            >
-              Live
-              <span>{liveListings.length}</span>
-            </button>
+        <section className="ss-card admin-review-toolbar" aria-label="Filter review queue">
+          <div className="admin-review-tabs" aria-label="Listing status">
+            {['pending', 'live'].map((state) => <button key={state} type="button" className={`ss-btn ss-btn--sm ${activeTab === state ? 'ss-btn--primary' : 'ss-btn--ghost'}`} aria-pressed={activeTab === state} onClick={() => { setActiveTab(state); setActionError(''); setNotice(''); }}>{state === 'pending' ? 'Pending' : 'Live'}<span>{loading || loadError ? '—' : counts[state]}</span></button>)}
           </div>
-
           <div className="admin-review-tools">
-            <input
-              type="search"
-              placeholder="Search listings..."
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-            />
-            <button type="button" onClick={loadListings} disabled={loading}>
-              Refresh
-            </button>
+            <label className="visually-hidden" htmlFor="admin-search">Search review queue</label>
+            <input id="admin-search" className="ss-input" type="search" placeholder="Search listings or sellers..." value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} />
+            <button type="button" className="ss-btn ss-btn--ghost ss-btn--sm" disabled={loading || Boolean(workingId)} onClick={() => { setActionError(''); setNotice(''); loadListings(); }}>{loading ? 'Refreshing...' : 'Refresh'}</button>
           </div>
         </section>
-
-        {lastUpdated && (
-          <p className="admin-review-updated">Last refreshed at {lastUpdated}</p>
-        )}
-
-        {error && <div className="admin-review-alert">{error}</div>}
+        {lastUpdated && !loadError && <p className="admin-review-updated">Last refreshed at {lastUpdated}</p>}
+        {notice && <div className="ss-alert" role="status">{notice}</div>}
+        {actionError && !deleteTarget && <div className="ss-alert ss-alert--error" role="alert">{actionError}</div>}
 
         {loading ? (
-          <div className="admin-review-loading">Loading listings...</div>
+          <div className="ss-card ss-state" role="status"><Spinner animation="border" size="sm" /><span>Loading review queue...</span></div>
+        ) : loadError ? (
+          <div className="ss-card ss-state" role="alert"><h2>Review queue unavailable</h2><p>{loadError}</p><button type="button" className="ss-btn ss-btn--primary" onClick={loadListings}>Try again</button></div>
         ) : visibleListings.length === 0 ? (
-          <div className="admin-review-empty">
-            <h2>{activeTab === 'pending' ? 'No pending listings' : 'No live listings'}</h2>
-            <p>
-              {activeTab === 'pending'
-                ? 'New seller submissions will appear here for approval.'
-                : 'Approved listings will appear here after they go live.'}
-            </p>
+          <div className="ss-card ss-state">
+            <h2>{query ? 'No matching listings' : activeTab === 'pending' ? 'No pending listings' : 'No live listings'}</h2>
+            <p>{query ? 'Try another search or clear the search field.' : activeTab === 'pending' ? 'New submissions and edited listings will appear here for review.' : 'Approved listings will appear here after they go live.'}</p>
+            {query && <button type="button" className="ss-btn ss-btn--ghost" onClick={() => setSearchTerm('')}>Clear search</button>}
           </div>
         ) : (
           <section className="admin-review-list" aria-label={`${activeTab} listings`}>
-            {visibleListings.map((listing) => (
-              <ListingReviewCard
-                key={listing._id}
-                listing={listing}
-                working={workingId === listing._id}
-                onApprove={(item) => handleStateChange(item, 'live')}
-                onUnpublish={(item) => handleStateChange(item, 'pending')}
-                onDelete={handleDelete}
-              />
-            ))}
+            {visibleListings.map((listing) => <ListingReviewCard key={listing._id} listing={listing} disabled={Boolean(workingId)} working={workingId === listing._id} onStateChange={handleStateChange} onDelete={(item) => { setActionError(''); setDeleteTarget(item); }} />)}
           </section>
         )}
       </main>
-
       <Footer />
-      <AdminToast toast={toast} />
+      <Modal show={Boolean(deleteTarget)} onHide={() => !workingId && setDeleteTarget(null)} centered contentClassName="ss-modal" aria-labelledby="admin-delete-title">
+        <Modal.Header closeButton={!workingId}><Modal.Title id="admin-delete-title">{deleteTarget?.listingState === 'live' ? 'Remove listing?' : 'Reject listing?'}</Modal.Title></Modal.Header>
+        <Modal.Body>
+          {actionError && <div className="ss-alert ss-alert--error" role="alert">{actionError}</div>}
+          <p>This permanently deletes <strong>{deleteTarget?.title}</strong>. It cannot be restored here.</p>
+          <p>{deleteTarget?.listingState === 'live' ? 'To hide it while keeping the listing, cancel and choose Unpublish instead.' : 'The seller would need to submit the item again.'}</p>
+        </Modal.Body>
+        <Modal.Footer><button type="button" className="ss-btn ss-btn--ghost" disabled={Boolean(workingId)} onClick={() => setDeleteTarget(null)}>Cancel</button><button type="button" className="ss-btn ss-btn--danger" disabled={Boolean(workingId)} onClick={handleDelete}>{workingId ? 'Deleting...' : 'Delete listing'}</button></Modal.Footer>
+      </Modal>
     </div>
   );
 }

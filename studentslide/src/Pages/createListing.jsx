@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Col, Form, Modal, Row, Spinner, Table } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { apiRequest } from '../api/client';
 import {
   createListing,
   deleteListing as removeListing,
-  getListings,
+  getMyListings,
   updateListing,
-  updateListingState as saveListingState,
 } from '../api/listings';
 import Navbar from '../Component/navbar';
 import Footer from '../Component/footer';
@@ -23,7 +23,7 @@ const emptyForm = {
   image: '',
 };
 
-const CreateListing = ({ user, onLogout, adminView = false }) => {
+const CreateListing = ({ user, onLogout, managementView = false }) => {
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const [form, setForm] = useState(emptyForm);
@@ -36,7 +36,9 @@ const CreateListing = ({ user, onLogout, adminView = false }) => {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const canReview = user?.role === 'admin' || user?.role === 'moderator';
+  const [loadError, setLoadError] = useState('');
+  const [sessionExpired, setSessionExpired] = useState(false);
+  const userId = user?._id;
 
   const pendingCount = useMemo(
     () => listings.filter((listing) => listing.listingState === 'pending').length,
@@ -50,12 +52,13 @@ const CreateListing = ({ user, onLogout, adminView = false }) => {
 
   const loadListings = async () => {
     setLoading(true);
-    setError('');
+    setLoadError('');
 
     try {
-      setListings(await getListings());
+      setListings(await getMyListings());
     } catch (err) {
-      setError(err.message);
+      setLoadError(err.message);
+      setSessionExpired(err.status === 401);
     } finally {
       setLoading(false);
     }
@@ -65,9 +68,17 @@ const CreateListing = ({ user, onLogout, adminView = false }) => {
     let isMounted = true;
 
     const loadInitialData = async () => {
+      if (!userId) {
+        setLoading(false);
+        setListings([]);
+        return;
+      }
+      setLoading(true);
+      setLoadError('');
+      setSessionExpired(false);
       try {
         const [listingData, categoryData] = await Promise.all([
-          getListings(),
+          getMyListings(),
           apiRequest('/categories').catch(() => []),
         ]);
 
@@ -80,7 +91,9 @@ const CreateListing = ({ user, onLogout, adminView = false }) => {
         }
       } catch (err) {
         if (isMounted) {
-          setError(err.message);
+          setListings([]);
+          setLoadError(err.message);
+          setSessionExpired(err.status === 401);
         }
       } finally {
         if (isMounted) {
@@ -94,7 +107,7 @@ const CreateListing = ({ user, onLogout, adminView = false }) => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [userId]);
 
   const openCreateModal = () => {
     setEditingListing(null);
@@ -198,25 +211,12 @@ const CreateListing = ({ user, onLogout, adminView = false }) => {
       }
 
       setShowFormModal(false);
-      setMessage(editingListing ? 'Listing updated successfully.' : 'Listing created and sent for review.');
+      setMessage(editingListing ? 'Changes saved and sent for review. Your listing will return to the marketplace once approved.' : 'Listing created and sent for review.');
       await loadListings();
     } catch (err) {
       setError(err.message);
     } finally {
       setSaving(false);
-    }
-  };
-
-  const changeListingState = async (listing, listingState) => {
-    setError('');
-    setMessage('');
-
-    try {
-      await saveListingState(listing._id, listingState);
-      setMessage(`Listing marked as ${listingState}.`);
-      await loadListings();
-    } catch (err) {
-      setError(err.message);
     }
   };
 
@@ -228,41 +228,43 @@ const CreateListing = ({ user, onLogout, adminView = false }) => {
     setMessage('');
 
     try {
-      await removeListing(listingToDelete._id);
+      await removeListing(listingToDelete._id, listingToDelete.__v ?? 0);
       setListingToDelete(null);
       setMessage('Listing deleted successfully.');
       await loadListings();
     } catch (err) {
       setError(err.message);
+      if (err.status === 404 || err.status === 409) {
+        setListingToDelete(null);
+        await loadListings();
+      }
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="ss-page">
+    <div className="ss-page ss-owned-listings">
       <Navbar isLoggedIn={Boolean(user)} user={user} onLogout={onLogout} />
 
       <main className="ss-main">
         <div className="ss-toolbar">
           <div>
-            <p className="ss-eyebrow">{adminView ? 'StudentSlide admin' : 'StudentSlide seller'}</p>
+            <p className="ss-eyebrow">StudentSlide seller</p>
             <h1 className="ss-title">
-              {adminView ? 'Listing Review Queue' : <>My <span className="ss-gradient-text">Listings</span></>}
+              {managementView ? <>My <span className="ss-gradient-text">Listings</span></> : <>Sell an <span className="ss-gradient-text">item</span></>}
             </h1>
             <p className="ss-subtitle">
-              {adminView
-                ? 'Review pending products, approve live listings, and clean up test data.'
-                : 'Add products to MongoDB. New listings stay pending until an admin approves them.'}
+              Manage the items you have listed. New listings and edits stay pending until a moderator approves them.
             </p>
           </div>
 
-          <button type="button" className="ss-btn ss-btn--primary" onClick={openCreateModal}>
+          <button type="button" className="ss-btn ss-btn--primary" onClick={openCreateModal} disabled={!user || sessionExpired}>
             + Add product
           </button>
         </div>
 
-        <div className="ss-stats">
+        {user && !loadError && !loading && <div className="ss-stats">
           <div className="ss-card ss-stat">
             <span>Total listings</span>
             <strong>{listings.length}</strong>
@@ -275,21 +277,33 @@ const CreateListing = ({ user, onLogout, adminView = false }) => {
             <span>Live marketplace</span>
             <strong>{liveCount}</strong>
           </div>
-        </div>
+        </div>}
 
-        {message && <div className="ss-alert">{message}</div>}
-        {error && <div className="ss-alert ss-alert--error">{error}</div>}
+        {message && <div className="ss-alert" role="status">{message}</div>}
+        {error && !showFormModal && <div className="ss-alert ss-alert--error" role="alert">{error}</div>}
 
         <div className="ss-card ss-panel">
-          {loading ? (
+          {!user || sessionExpired ? (
+            <div className="ss-state">
+              <h2>{sessionExpired ? 'Please sign in again' : 'Your listings belong to you'}</h2>
+              <p>Sign in to create listings and manage the items linked to your account.</p>
+              <Link to="/auth" className="ss-btn ss-btn--primary">Sign in</Link>
+            </div>
+          ) : loading ? (
             <div className="ss-state">
               <Spinner animation="border" size="sm" variant="info" />
               <span>Loading listings...</span>
             </div>
+          ) : loadError ? (
+            <div className="ss-state" role="alert">
+              <h2>Could not load your listings</h2>
+              <p>{loadError}</p>
+              <button type="button" className="ss-btn ss-btn--ghost" onClick={loadListings}>Try again</button>
+            </div>
           ) : listings.length === 0 ? (
             <div className="ss-state">
-              <h2>No products yet</h2>
-              <p>Add the first product to test the database connection.</p>
+              <h2>No listings linked to your account yet</h2>
+              <p>Add an item to get started. Older listings without a recorded seller need a moderator’s review.</p>
               <button type="button" className="ss-btn ss-btn--primary" onClick={openCreateModal}>
                 + Add product
               </button>
@@ -326,17 +340,6 @@ const CreateListing = ({ user, onLogout, adminView = false }) => {
                     </td>
                     <td>
                       <div className="ss-actions">
-                        {canReview && (
-                          listing.listingState !== 'live' ? (
-                            <button type="button" className="ss-btn ss-btn--ghost ss-btn--sm" onClick={() => changeListingState(listing, 'live')}>
-                              Approve
-                            </button>
-                          ) : (
-                            <button type="button" className="ss-btn ss-btn--ghost ss-btn--sm" onClick={() => changeListingState(listing, 'pending')}>
-                              Unpublish
-                            </button>
-                          )
-                        )}
                         <button type="button" className="ss-btn ss-btn--ghost ss-btn--sm" onClick={() => openEditModal(listing)}>
                           Edit
                         </button>
@@ -361,6 +364,7 @@ const CreateListing = ({ user, onLogout, adminView = false }) => {
             <Modal.Title>{editingListing ? 'Edit listing' : 'Add product'}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
+            {error && <div className="ss-alert ss-alert--error" role="alert">{error}</div>}
             <Row className="g-3">
               <Col md={8}>
                 <Form.Group>

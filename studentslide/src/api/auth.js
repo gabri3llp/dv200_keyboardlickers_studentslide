@@ -1,9 +1,9 @@
-import { apiRequest, getAuthToken, saveSession } from './client';
+import { API_URL, apiRequest, getAuthToken, saveSession } from './client';
 
 const STUDENTS_API = '/students';
 
 export async function registerUser(username, color, sequence, profile = {}) {
-  const res = await fetch(`http://localhost:5000/api${STUDENTS_API}/register`, {
+  const res = await fetch(`${API_URL}${STUDENTS_API}/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, color, sequence, ...profile }),
@@ -13,7 +13,7 @@ export async function registerUser(username, color, sequence, profile = {}) {
 }
 
 export async function loginUser(username, color, sequence) {
-  const res = await fetch(`http://localhost:5000/api${STUDENTS_API}/login`, {
+  const res = await fetch(`${API_URL}${STUDENTS_API}/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, color, sequence }),
@@ -31,6 +31,6 @@ export async function getMe() {
     saveSession(data);
     return { ok: true, ...data };
   } catch (err) {
-    return { ok: false, message: err.message };
+    return { ok: false, message: err.message, status: err.status };
   }
 }

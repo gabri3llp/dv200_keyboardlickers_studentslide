@@ -4,6 +4,7 @@ import SignIn from './Pages/signIn';
 import SignUp from './Pages/signUp';
 import Messages from './Pages/messages';
 import CreateListing from './Pages/createListing';
+import MyListings from './Pages/MyListings';
 import AdminListings from './Pages/AdminListings';
 import Marketplace from './Pages/marketplace';
 import ProductDetails from './Pages/productDetails';
@@ -38,6 +39,9 @@ function AuthFlow() {
     getMe().then((result) => {
       if (isMounted && result.ok && result.user) {
         setUser(result.user);
+      } else if (isMounted && result.status === 401) {
+        clearSession();
+        setUser(null);
       }
     });
 
@@ -107,10 +111,11 @@ function AuthFlow() {
       <Route path="/cart" element={<Cart user={user} onLogout={handleLogout} />} />
       <Route path="/createListing" element={<CreateListing user={user} onLogout={handleLogout} />} />
       <Route path="/listings" element={<CreateListing user={user} onLogout={handleLogout} />} />
+      <Route path="/my-listings" element={<MyListings user={user} onLogout={handleLogout} />} />
       <Route path="/admin" element={<Navigate to="/admin/listings" replace />} />
       <Route
         path="/admin/listings"
-        element={<AdminListings user={user} onLogout={handleLogout} />}
+        element={<AdminListings key={user?._id || 'guest'} user={user} onLogout={handleLogout} />}
       />
       <Route path="/messages" element={<Messages user={user} onLogout={handleLogout} />} />
       <Route path="/aboutus" element={<AboutUs user={user} onLogout={handleLogout} />} />
